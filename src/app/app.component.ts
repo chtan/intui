@@ -16,7 +16,7 @@ export class AppComponent {
   constructor(private http: HttpClient) {
     //console.log(environment.apiUrl);
 
-    this.http.get('http://' + environment.apiUrl + '/welcome/echo?x=1')
+    this.http.get('http://' + environment.apiUrl + '/welcome/echo?x=000')
       .subscribe(data => {
         console.log(data);
       });
