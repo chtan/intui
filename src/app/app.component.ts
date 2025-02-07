@@ -16,9 +16,11 @@ export class AppComponent {
   constructor(private http: HttpClient) {
     console.log(environment.apiUrl);
 
+    /*
     this.http.get('http://' + environment.apiUrl + '/welcome/echo?x=123')
       .subscribe(data => {
         console.log(data);
       });
+    */
   }
 }
