@@ -1,0 +1,14 @@
+<div [ngSwitch]="ttid">
+  <div *ngSwitchCase="'1'">
+  <p>Current Value: {{ n }}</p>
+  <button (click)="changeValue()">Change Value</button>
+  </div>
+  
+  <div *ngSwitchDefault>Waiting...</div>
+</div>
+
+<h1>WebSocket Chat</h1>
+
+<input type="text" [(ngModel)]="message" placeholder="Enter message" />
+<button (click)="sendMessage()">Send Message</button>
+<button (click)="disconnect()">Disconnect</button>

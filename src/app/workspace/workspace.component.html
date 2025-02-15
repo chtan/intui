@@ -1,0 +1,17 @@
+<div>
+	<p>Tasks</p>
+
+	<ul>
+		<li><a [routerLink]="['.']">Tasks</a></li>
+  		<li *ngFor="let item of listOfTids">
+  			<a [routerLink]="['task', item]">{{ item }}</a>
+  		</li>
+	</ul>
+</div>
+
+<!-- Taskspace -->
+<div>
+  <router-outlet></router-outlet>
+</div>
+
+

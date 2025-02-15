@@ -1,0 +1,22 @@
+<div>
+	<p>List of Users</p>
+	
+	<ul>
+  		<li *ngFor="let item of links">
+  			<a [routerLink]="['/task', item]" target="_blank">{{ item }}</a>
+  		</li>
+	</ul>
+
+</div>
+
+<div>
+	<p>Statistics</p>
+
+	<figure id="bar"></figure>
+</div>
+
+<h1>WebSocket Chat</h1>
+
+<input type="text" [(ngModel)]="message" placeholder="Enter message" />
+<button (click)="sendMessage()">Send Message</button>
+<button (click)="disconnect()">Disconnect</button>
