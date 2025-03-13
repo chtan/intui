@@ -70,73 +70,96 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.tid = this.route.snapshot.paramMap.get('tid'); // Read the 'uid' from the URL
+    // need to listen for changes using params observable
+    this.route.params.subscribe(params => {
+      this.tid = params['tid']; // Extract 'id' from URL
 
-    this.createSvg();
+      this.loadTask();  // Function to update content
+    });
 
-    if (this.cookieService.check('Coordinator')) {
+    // this does not do the job as it is one-off
+    //this.tid = this.route.snapshot.paramMap.get('tid'); // Read the 'uid' from the URL
+  }
 
-      let params = new HttpParams()
-        .set('uid', this.cookieService.get('Coordinator'))
-        .set('tid', String(this.tid))
-      ;
+  private loadTask(): void {
+    // Clear the contents
+    this.links = [];
+    this.clearSvg();
 
-      // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
-      this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
-        .subscribe(
-          (data: any) => {
-            //console.log(data);
+    if (this.tid == "1") {
+      this.createSvg();
 
-            if (data['status'] != 'ok') {
-              this.cookieService.delete('Coordinator');
-              this.router.navigate(['/']);
-            }
+      if (this.cookieService.check('Coordinator')) {
 
-            var tmpstate = data['state'];
-            //console.log(tmpstate, tmpstate["6b26107c"], "****", typeof tmpstate);
-            for (const key in tmpstate) {
-              this.links.push(String(key));
-              this.state[key] = tmpstate[key]["n"];
-            }
-            this.recipientList = this.links;
-            //console.log("abc", this.recipientList, this.state);
-          
-            // Connect to websocket
-            this.wsService.connect(this.cookieService.get('Coordinator'));
+        let params = new HttpParams()
+          .set('uid', this.cookieService.get('Coordinator'))
+          .set('tid', String(this.tid))
+        ;
 
-            // Subscribe to listen to and use incoming messages
-            this.wsSubscription = this.wsService.messages$.subscribe(
-              (message) => {
-                if (message) {
-                  this.receivedMessage = message;
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+          .subscribe(
+            (data: any) => {
+              //console.log(data);
 
-                  if (this.receivedMessage["message"] == "update state") {
-                    //console.log("!!!", this.receivedMessage);
-                    this.state[this.receivedMessage["sender"]] = this.receivedMessage["data"]["n"];
-                    //console.log(this.state);
+              if (data['status'] != 'ok') {
+                this.cookieService.delete('Coordinator');
+                this.router.navigate(['/']);
+              }
 
-                    // Draw Chart
-                    this.statistics = Object.entries(this.state).map(([Id, N]) => ({ Id, N }));
-                    //this.drawBars(this.statistics);
-                    this.updateBar([{
-                      Id: this.receivedMessage["sender"],
-                      N: this.receivedMessage["data"]["n"],
-                    }]);
+              var tmpstate = data['state'];
+
+              //console.log(tmpstate, tmpstate["6b26107c"], "****", typeof tmpstate);
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+              //console.log("abc", this.recipientList, this.state);
+            
+              // Connect to websocket
+              this.wsService.connect(this.cookieService.get('Coordinator'));
+
+              // Subscribe to listen to and use incoming messages
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    this.receivedMessage = message;
+
+                    if (this.receivedMessage["message"] == "update state") {
+                      //console.log("!!!", this.receivedMessage);
+                      this.state[this.receivedMessage["sender"]] = this.receivedMessage["data"]["n"];
+                      //console.log(this.state);
+
+                      // Draw Chart
+                      this.statistics = Object.entries(this.state).map(([Id, N]) => ({ Id, N }));
+                      //this.drawBars(this.statistics);
+                      this.updateBar([{
+                        Id: this.receivedMessage["sender"],
+                        N: this.receivedMessage["data"]["n"],
+                      }]);
+                    }
                   }
                 }
-              }
-            );
+              );
 
-            // Draw Chart
-            this.statistics = Object.entries(this.state).map(([Id, N]) => ({ Id, N }));
-            this.drawBars(this.statistics);
-          },
-          
-          (error: any) => {
-            console.error('Error fetching data:', error);
-          }
-        );
+              // Draw Chart
+              this.statistics = Object.entries(this.state).map(([Id, N]) => ({ Id, N }));
+
+              this.drawBars(this.statistics);
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
+    } else {
     }
+  }
+
+  private clearSvg(): void {
+    d3.select("figure#bar").select("svg").remove(); // Remove existing SVG
   }
 
   private createSvg(): void {

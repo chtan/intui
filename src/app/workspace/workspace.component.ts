@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from "@environment/environment";
@@ -12,6 +13,7 @@ import { environment } from "@environment/environment";
     NgFor,
     RouterLink,
     RouterModule,
+    MatToolbarModule,
   ],
   providers: [ CookieService ],
   templateUrl: './workspace.component.html',

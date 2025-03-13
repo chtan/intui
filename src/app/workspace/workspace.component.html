@@ -1,17 +1,20 @@
-<div>
-	<p>Tasks</p>
+<mat-toolbar color="primary">
+  <span>EL</span>
+  <span class="spacer"></span>
+  <span><a [routerLink]="['.']">Tasks</a></span>
+</mat-toolbar>
 
-	<ul>
-		<li><a [routerLink]="['.']">Tasks</a></li>
+<div class="content">
+  <div class="sidebar">
+  </div>
+
+	<div class="main-content">
+		<ul>
   		<li *ngFor="let item of listOfTids">
   			<a [routerLink]="['task', item]">{{ item }}</a>
   		</li>
-	</ul>
+		</ul>
+
+		<router-outlet></router-outlet>
+	</div>
 </div>
-
-<!-- Taskspace -->
-<div>
-  <router-outlet></router-outlet>
-</div>
-
-
