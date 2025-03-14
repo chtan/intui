@@ -1,5 +1,11 @@
 <div>
-	<p>List of Users</p>
+	<span><b>Task: </b></span>{{ tid }}
+</div>
+
+<br>
+
+<div>
+	<p><b><u>Users</u></b></p>
 	
 	<ul>
   		<li *ngFor="let item of links">
@@ -9,14 +15,21 @@
 
 </div>
 
+<br>
+
 <div>
-	<p>Statistics</p>
+	<p><b><u>Statistics</u></b></p>
 
 	<figure id="bar"></figure>
 </div>
 
-<h1>WebSocket Chat</h1>
+<br>
 
-<input type="text" [(ngModel)]="message" placeholder="Enter message" />
-<button (click)="sendMessage()">Send Message</button>
-<button (click)="disconnect()">Disconnect</button>
+<div>
+	<p><b><u>Web Socket</u></b></p>
+
+	<input type="text" [(ngModel)]="message" placeholder="Enter message" />
+	<br>
+	<button (click)="sendMessage()">Send Message</button>
+	<button (click)="disconnect()">Disconnect</button>
+</div>

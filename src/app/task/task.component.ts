@@ -26,7 +26,6 @@ import { environment } from "@environment/environment";
 export class TaskComponent implements OnInit, OnDestroy {
   tid: string | null = '';
   ttid: string = '';
-  //state: any;
   n: number | null = null;
 
   // Listen to messages on the socket connection
@@ -40,7 +39,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private http: HttpClient,
     private router: Router,
-    private wsService: WebSocketService
+    private wsService: WebSocketService,
+    //private dataService: DataService
   ) {
   }
 

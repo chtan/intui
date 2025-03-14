@@ -1,85 +1,73 @@
-/*
 import { Injectable } from '@angular/core';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
+import { BehaviorSubject } from 'rxjs';
+import * as rxOps from 'rxjs/operators';
+
+/*
+For testing in the browser console:
+
+const ws = new WebSocket('ws://localhost:8000/ws/chat/chtan/');
+ws.onopen = () => {
+  ws.send(JSON.stringify({ recipients: ['46c7fdfb', '6b26107c', 'e736cb4f', '08d5fd41', 'd8d260db'], message: 'Hello from JS!', data: 12345 }));
+};
+ws.onmessage = (event) => {
+  console.log('Received:', event.data);
+};
+
+*/
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
-  // ! operator
-  // tells TypeScript that the variable will be assigned before use
   private socket$!: WebSocketSubject<any>;
+  private messageSubject = new BehaviorSubject<any>(null);
+  public messages$ = this.messageSubject.asObservable();
+  private isConnected = false;
 
-  connect(username: string) {
-    this.socket$ = webSocket(`ws://localhost:8000/ws/chat/${username}/`);
+  connect(username: string): void {
+    if (this.isConnected) {
+      console.warn('WebSocket is already connected.');
+      return;
+    }
 
-    this.socket$.subscribe(
-      (message) => console.log("📩 Received:", message),
-      (err) => console.error("❌ WebSocket Error:", err),
-      () => console.log("🔌 WebSocket closed")
-    );
-  }
-
-  sendMessage(recipients: string[], message: string) {
-    this.socket$.next({ recipients, message });
-  }
-
-  closeConnection() {
-    this.socket$.complete();
-  }
-}
-*/
-
-import { Injectable } from '@angular/core';
-import { WebSocketSubject } from 'rxjs/webSocket';
-import { Subject, BehaviorSubject } from 'rxjs';
-//import { retryWhen, delay } from 'rxjs/operators';
-import * as rxOps from 'rxjs/operators';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class WebSocketService {
-  // ! operator
-  // tells TypeScript that the variable will be assigned before use
-  private socket$!: WebSocketSubject<any>;
-  private messageSubject = new BehaviorSubject<any>(null); // Store the latest message
-  public messages$ = this.messageSubject.asObservable(); // Exposed observable
-
-  constructor() {}
-
-  connect(username: string) {
-    // Establish WebSocket connection with the username parameter
     const wsUrl = `ws://localhost:8000/ws/chat/${username}/`;
-    //this.socket$ = new WebSocketSubject(wsUrl);
-    const ws = new WebSocketSubject(wsUrl);
+    this.socket$ = webSocket(wsUrl);
 
-    // To ensure reconnect
-    this.socket$ = ws.pipe(
-      rxOps.retryWhen(errors => errors.pipe(rxOps.delay(5000))) // Retry every 5 seconds
-    ) as WebSocketSubject<any>;
+    this.socket$
+      .pipe(rxOps.retryWhen((errors) => errors.pipe(rxOps.delay(5000))))
+      .subscribe(
+        (message) => {
+          console.log('Message received:', message);
+          this.messageSubject.next(message);
+        },
+        (err) => {
+          console.error('WebSocket error:', err);
+          this.isConnected = false;
+        },
+        () => {
+          console.warn('WebSocket closed');
+          this.isConnected = false;
+        }
+      );
 
-    this.socket$.subscribe(
-      (message) => {
-        console.log('Message received:', message);
-        this.messageSubject.next(message); // Emit message to subscribers
-      },
-      (err) => console.error('WebSocket error:', err),
-      () => console.warn('WebSocket closed')
-    );
+    this.isConnected = true;
   }
 
-  sendMessage(recipients: string[], message: string) {
-    if (this.socket$) {
-      this.socket$.next({ recipients, message });
+  sendMessage(recipients: string[], message: string): void {
+    //console.log(recipients, message)
+
+    if (this.isConnected && this.socket$) {
+      this.socket$.next({ recipients: recipients, message: message, data: 123 });
     } else {
       console.warn('WebSocket is not connected.');
     }
   }
 
-  disconnect() {
+  disconnect(): void {
     if (this.socket$) {
-      this.socket$.complete(); // Close the WebSocket connection
+      this.socket$.complete();
+      this.isConnected = false;
     }
   }
 }

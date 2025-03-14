@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit  } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -7,23 +7,28 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from "@environment/environment";
 
+import { DataService } from '../services/data.service';
+
 @Component({
   selector: 'app-workspace',
   imports: [
-    NgFor,
     RouterLink,
     RouterModule,
     MatToolbarModule,
   ],
-  providers: [ CookieService ],
+  providers: [ 
+    CookieService,
+    DataService,
+  ],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.scss'
 })
-export class WorkspaceComponent {
+export class WorkspaceComponent implements AfterViewInit {
   cookieService = inject(CookieService);
+  dataService = inject(DataService);
 
   uid: string | null = ''; // e.g. chtan
-  listOfTids = [];
+  listOfTids: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -52,6 +57,7 @@ export class WorkspaceComponent {
             }
 
             this.listOfTids = data['tids'];
+            this.dataService.updateData(this.listOfTids);
 
             this.cookieService.set('Coordinator', String(this.uid));
           },
@@ -61,5 +67,8 @@ export class WorkspaceComponent {
           }
         );
     }
+  }
+
+  ngAfterViewInit() {
   }
 }
