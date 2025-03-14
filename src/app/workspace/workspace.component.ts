@@ -3,6 +3,7 @@ import { NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from "@environment/environment";
@@ -15,6 +16,7 @@ import { DataService } from '../services/data.service';
     RouterLink,
     RouterModule,
     MatToolbarModule,
+    MatIconModule,
   ],
   providers: [ 
     CookieService,

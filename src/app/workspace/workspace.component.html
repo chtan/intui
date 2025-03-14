@@ -1,7 +1,29 @@
 <mat-toolbar color="primary">
   <span>EL</span>
   <span class="spacer"></span>
-  <span><a [routerLink]="['.']">Tasks</a></span>
+
+  <span>
+    <a [routerLink]="['.']" class="icon-link" title="View Tasks">
+      <!-- public folder, declared in angular.json -->
+      <img src="tasks.png" alt="Tasks Icon" class="icon-image" />
+    </a>
+  </span>
+
+  <!--
+  <span>
+    <a [routerLink]="['.']" class="icon-link" title="View Tasks">
+      <i class="fas fa-tasks"></i>
+    </a>
+  </span>
+  -->
+
+  <!--
+  <span>
+    <a [routerLink]="['.']" class="icon-link" title="View Tasks">
+      <mat-icon>task</mat-icon>
+    </a>
+  </span>
+  -->
 </mat-toolbar>
 
 <div class="content">

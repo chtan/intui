@@ -14,3 +14,13 @@
   flex: 1;
   padding: 16px;
 }
+
+.icon-image {
+  width: 48px; /* Adjust the size */
+  height: 48px;
+  cursor: pointer;
+}
+
+.icon-link:hover .icon-image {
+  opacity: 0.7; /* Optional: Changes opacity on hover */
+}
