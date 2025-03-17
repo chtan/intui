@@ -14,6 +14,7 @@ import { environment } from "@environment/environment";
 
 // Ref: https://blog.logrocket.com/data-visualization-angular-d3-js/
 import * as d3 from 'd3';
+declare var $: any;
 
 @Component({
   selector: 'app-task-control',
@@ -82,12 +83,12 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   }
 
   private loadTask(): void {
+
     // Clear the contents
     this.links = [];
     this.clearSvg();
 
     if (this.tid == "1") {
-      this.createSvg();
 
       if (this.cookieService.check('Coordinator')) {
 
@@ -100,7 +101,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
         this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
           .subscribe(
             (data: any) => {
-              //console.log(data);
+              //console.log("!!!!", data);
 
               if (data['status'] != 'ok') {
                 this.cookieService.delete('Coordinator');
@@ -127,7 +128,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
                     this.receivedMessage = message;
 
                     if (this.receivedMessage["message"] == "update state") {
-                      //console.log("!!!", this.receivedMessage);
                       this.state[this.receivedMessage["sender"]] = this.receivedMessage["data"]["n"];
                       //console.log(this.state);
 
@@ -145,7 +145,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
               // Draw Chart
               this.statistics = Object.entries(this.state).map(([Id, N]) => ({ Id, N }));
-
               this.drawBars(this.statistics);
             },
             
@@ -154,16 +153,52 @@ export class TaskControlComponent implements OnInit, OnDestroy {
             }
           );
       }
-    } else {
+    } else if (this.tid == "3") {
+      if (this.cookieService.check('Coordinator')) {
+
+        let params = new HttpParams()
+          .set('uid', this.cookieService.get('Coordinator'))
+          .set('tid', String(this.tid))
+        ;
+
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+          .subscribe(
+            (data: any) => {
+              //console.log(data);
+              
+              if (data['status'] != 'ok') {
+                this.cookieService.delete('Coordinator');
+                this.router.navigate(['/']);
+              }
+
+              var tmpstate = data['state'];
+
+              //console.log(tmpstate, tmpstate["6b26107c"], "****", typeof tmpstate);
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+              
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
     }
   }
 
   private clearSvg(): void {
-    d3.select("figure#bar").select("svg").remove(); // Remove existing SVG
+    d3.select("figure#bar")
+      .select("svg")
+      .remove(); // Remove existing SVG
   }
 
   private createSvg(): void {
-      this.svg = d3.select("figure#bar")
+    this.svg = d3.select("figure#bar")
       .append("svg")
       .attr("width", this.width + (this.margin * 2))
       .attr("height", this.height + (this.margin * 2))
@@ -172,41 +207,41 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   }
 
   private drawBars(data: any[]): void {
-    //this.svg = d3.select("figure#bar");
+    this.createSvg();
 
     // Create the X-axis band scale
     const x = d3.scaleBand()
-    .range([0, this.width])
-    .domain(data.map(d => d.Id))
-    .padding(0.2);
+      .range([0, this.width])
+      .domain(data.map(d => d.Id))
+      .padding(0.2);
 
     // Draw the X-axis on the DOM
     this.svg.append("g")
-    .attr("transform", "translate(0," + this.height + ")")
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "translate(-10,0)rotate(-45)")
-    .style("text-anchor", "end");
+      .attr("transform", "translate(0," + this.height + ")")
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .attr("transform", "translate(-10,0)rotate(-45)")
+      .style("text-anchor", "end");
 
     // Create the Y-axis band scale
     const y = d3.scaleLinear()
-    .domain([0, 200])
-    .range([this.height, 0]);
+      .domain([0, 200])
+      .range([this.height, 0]);
 
     // Draw the Y-axis on the DOM
     this.svg.append("g")
-    .call(d3.axisLeft(y));
+      .call(d3.axisLeft(y));
 
     // Create and fill the bars
     this.svg.selectAll("bars")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("x", (d: any) => x(d.Id))
-    .attr("y", (d: any) => y(d.N))
-    .attr("width", x.bandwidth())
-    .attr("height", (d: any) => this.height - y(d.N))
-    .attr("fill", "#d04a35");
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("x", (d: any) => x(d.Id))
+      .attr("y", (d: any) => y(d.N))
+      .attr("width", x.bandwidth())
+      .attr("height", (d: any) => this.height - y(d.N))
+      .attr("fill", "#d04a35");
   }
 
   // https://chatgpt.com/c/67b09d7d-72f0-8001-88ac-c99a82499da6
@@ -226,7 +261,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
       .attr("y", (d: any) => y(d.N))
       .attr("height", (d: any) => this.height - y(d.N));
   }
-
 
   ngAfterViewInit() {
     // This error: ExpressionChangedAfterItHasBeenCheckedError

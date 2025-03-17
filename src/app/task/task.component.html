@@ -2,20 +2,23 @@
   <p><b><u>State</u></b></p>
 
   <div *ngSwitchCase="'1'">
-  <p>Current Value: {{ n }}</p>
-  <button (click)="changeValue()">Change Value</button>
+    <p>Current Value: {{ n }}</p>
+    <button (click)="changeValue()">Change Value</button>
+
+    <br>
+
+    <div>
+      <p><b><u>Web Socket</u></b></p>
+
+      <input type="text" [(ngModel)]="message" placeholder="Enter message" />
+      <br>
+      <button (click)="sendMessage()">Send Message</button>
+      <button (click)="disconnect()">Disconnect</button>
+    </div>
   </div>
   
-  <div *ngSwitchDefault>Waiting...</div>
+  <div *ngSwitchDefault>
+    Waiting...
+  </div>
 </div>
 
-<br>
-
-<div>
-  <p><b><u>Web Socket</u></b></p>
-
-  <input type="text" [(ngModel)]="message" placeholder="Enter message" />
-  <br>
-  <button (click)="sendMessage()">Send Message</button>
-  <button (click)="disconnect()">Disconnect</button>
-</div>

@@ -66,25 +66,30 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.http.get('http://' + environment.apiUrl + '/task', { params })
         .subscribe(
           (data: any) => {
-            console.log(data);
+            //console.log(data);
 
             if (data['status'] != 'ok') {
-
+              this.router.navigate(['/']);
             }
 
             this.ttid = data['tasktypeid'];
-            //this.state = data['state'];
-            this.n = data['state']['n'];
 
-            this.wsService.connect(String(this.tid));
+            if (this.ttid == "1") {
+              //this.state = data['state'];
+              this.n = data['state']['n'];
 
-            this.wsSubscription = this.wsService.messages$.subscribe(
-              (message) => {
-                if (message) {
-                  this.receivedMessage = message; // Update component variable
+              this.wsService.connect(String(this.tid));
+
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    this.receivedMessage = message; // Update component variable
+                  }
                 }
-              }
-            );
+              );
+            } else if (this.ttid == "3") {
+              //console.log(data);
+            }
           },
 
           (error: any) => {

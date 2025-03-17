@@ -1,35 +1,39 @@
 <div>
-	<span><b>Task: </b></span>{{ tid }}
+  <span><b>Task: </b></span>{{ tid }}
 </div>
 
 <br>
 
 <div>
-	<p><b><u>Users</u></b></p>
-	
-	<ul>
-  		<li *ngFor="let item of links">
-  			<a [routerLink]="['/task', item]" target="_blank">{{ item }}</a>
-  		</li>
-	</ul>
+  <p><b><u>Users</u></b></p>
+    
+  <ul>
+    <li *ngFor="let item of links">
+      <a [routerLink]="['/task', item]" target="_blank">{{ item }}</a>
+    </li>
+  </ul>
 
 </div>
 
 <br>
 
 <div>
-	<p><b><u>Statistics</u></b></p>
+  <p><b><u>Statistics</u></b></p>
 
-	<figure id="bar"></figure>
+  <figure id="bar"></figure>
 </div>
 
-<br>
+<div [ngSwitch]="tid">
+  <div *ngSwitchCase="'1'">
+    <br>
 
-<div>
-	<p><b><u>Web Socket</u></b></p>
+    <p><b><u>Web Socket</u></b></p>
 
-	<input type="text" [(ngModel)]="message" placeholder="Enter message" />
-	<br>
-	<button (click)="sendMessage()">Send Message</button>
-	<button (click)="disconnect()">Disconnect</button>
+    <input type="text" [(ngModel)]="message" placeholder="Enter message" />
+    
+    <br>
+    
+    <button (click)="sendMessage()">Send Message</button>
+    <button (click)="disconnect()">Disconnect</button>
+  </div>
 </div>
