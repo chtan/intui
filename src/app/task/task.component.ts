@@ -28,6 +28,12 @@ export class TaskComponent implements OnInit, OnDestroy {
   ttid: string = '';
   n: number | null = null;
 
+  selectedAnswers: (number|null)[] = [];
+  results: string[] = [];
+  structure: any = [];
+  state: any = null;
+  statistics: any = null;
+
   // Listen to messages on the socket connection
   private wsSubscription!: Subscription;
   receivedMessage: string = '';
@@ -55,6 +61,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // This task id, tid, is (tasktypeid, userid) all in 1 string, incarnated as a URL
     this.tid = this.route.snapshot.paramMap.get('tid'); // Read the 'tid' from the URL
 
     if (this.tid != null) {
@@ -88,7 +95,24 @@ export class TaskComponent implements OnInit, OnDestroy {
                 }
               );
             } else if (this.ttid == "3") {
-              //console.log(data);
+              console.log(data);
+
+              this.state = data['state'];
+              this.structure = data['structure'];
+              this.statistics = data['statistics'];
+
+              for (let i = 0; i < this.state.pageState.length; i++) {
+                if (this.state.pageState[i].choiceSequence.length > 0) {
+                  this.selectedAnswers[i] = this.state.pageState[i].choiceSequence[
+                    this.state.pageState[i].choiceSequence.length - 1
+                  ];
+                } else {
+                  this.selectedAnswers[i] = null;
+                }
+              } 
+
+              // Connect to track on server...
+              this.wsService.connect(String(this.tid));
             }
           },
 
@@ -98,6 +122,97 @@ export class TaskComponent implements OnInit, OnDestroy {
         );
     }
   }
+
+
+
+  onAnswerChange(questionIndex: number, answer: number) {
+    this.selectedAnswers[questionIndex] = answer;
+  }
+
+  submitAnswer(questionIndex: number) {
+    if (this.tid != null) {
+
+      let uf = [
+        [
+          'submitChoice',
+          [questionIndex, this.selectedAnswers[questionIndex]],
+        ]
+      ];
+
+      let params = new HttpParams()
+        .set('tid', this.tid)
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      this.http.get('http://' + environment.apiUrl + '/task/update_state2', { params })
+        .subscribe(
+          (data: any) => {
+            //console.log(data);
+
+            this.state = data['state'];
+            this.structure = data['structure'];
+            this.statistics = data['statistics'];
+
+            for (let i = 0; i < this.state.pageState.length; i++) {
+              if (this.state.pageState[i].choiceSequence.length > 0) {
+                this.selectedAnswers[i] = this.state.pageState[i].choiceSequence[
+                  this.state.pageState[i].choiceSequence.length - 1
+                ];
+              } else {
+                this.selectedAnswers[i] = null;
+              }
+            } 
+          },
+
+          (error: any) => {
+            console.error('Error fetching data:', error);
+          }
+        );
+    }
+  }
+
+  navigate(page: number) {
+    if (this.tid != null) {
+
+      let uf = [
+        [
+          'navigate',
+          [page],
+        ]
+      ];
+
+      let params = new HttpParams()
+        .set('tid', this.tid)
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      this.http.get('http://' + environment.apiUrl + '/task/update_state2', { params })
+        .subscribe(
+          (data: any) => {
+            this.state = data['state'];
+            this.structure = data['structure'];
+            this.statistics = data['statistics'];
+
+            for (let i = 0; i < this.state.pageState.length; i++) {
+              if (this.state.pageState[i].choiceSequence.length > 0) {
+                this.selectedAnswers[i] = this.state.pageState[i].choiceSequence[
+                  this.state.pageState[i].choiceSequence.length - 1
+                ];
+              } else {
+                this.selectedAnswers[i] = null;
+              }
+            }
+          },
+
+          (error: any) => {
+            console.error('Error fetching data:', error);
+          }
+        );
+    }
+  }
+
+
+
 
   changeValue() {
     if (this.n !== null) {

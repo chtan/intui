@@ -50,6 +50,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   private height = 400 - (this.margin * 2);
 
   statistics: any[] = [];
+  globalStatistics: any = {};
 
 
   constructor(
@@ -165,7 +166,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
         this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
           .subscribe(
             (data: any) => {
-              //console.log(data);
+              //console.log('000', data);
               
               if (data['status'] != 'ok') {
                 this.cookieService.delete('Coordinator');
@@ -173,6 +174,8 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               }
 
               var tmpstate = data['state'];
+              this.globalStatistics = data['statistics'];
+              console.log("$%^", this.globalStatistics);
 
               //console.log(tmpstate, tmpstate["6b26107c"], "****", typeof tmpstate);
               for (const key in tmpstate) {
@@ -181,6 +184,23 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               }
               this.recipientList = this.links;
               
+
+              // Connect to websocket
+              this.wsService.connect(this.cookieService.get('Coordinator'));
+
+              // Subscribe to listen to and use incoming messages
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    //console.log("Web Socket", message);
+                    this.receivedMessage = message;
+
+                    if (message['message'] == 'update statistics') {
+                      this.globalStatistics = message['data'];
+                    }
+                  }
+                }
+              );
             },
             
             (error: any) => {

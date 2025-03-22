@@ -20,7 +20,15 @@
 <div>
   <p><b><u>Statistics</u></b></p>
 
-  <figure id="bar"></figure>
+  <div [ngSwitch]="tid">
+    <div *ngSwitchCase="'1'">
+      <figure id="bar"></figure>
+    </div>
+
+    <div *ngSwitchCase="'3'">
+      <pre>{{ globalStatistics | json }}</pre>
+    </div>
+  </div>
 </div>
 
 <div [ngSwitch]="tid">
