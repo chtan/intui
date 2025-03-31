@@ -208,6 +208,74 @@ export class TaskControlComponent implements OnInit, OnDestroy {
             }
           );
       }
+    } else if (this.tid == "4") {
+      if (this.cookieService.check('Coordinator')) {
+
+        let params = new HttpParams()
+          .set('uid', this.cookieService.get('Coordinator'))
+          .set('tid', String(this.tid))
+        ;
+
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+          .subscribe(
+            (data: any) => {
+              console.log('000', data);
+              
+              if (data['status'] != 'ok') {
+                this.cookieService.delete('Coordinator');
+                this.router.navigate(['/']);
+              }
+
+              var tmpstate = data['state'];
+
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
+    } else if (this.tid == "5") {
+      if (this.cookieService.check('Coordinator')) {
+
+        let params = new HttpParams()
+          .set('uid', this.cookieService.get('Coordinator'))
+          .set('tid', String(this.tid))
+        ;
+
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+          .subscribe(
+            (data: any) => {
+              console.log('000', data);
+              
+              if (data['status'] != 'ok') {
+                this.cookieService.delete('Coordinator');
+                this.router.navigate(['/']);
+              }
+
+              var tmpstate = data['state'];
+
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
+    } else {
+
     }
   }
 

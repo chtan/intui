@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -9,7 +9,17 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { WebSocketService } from '../services/websocket.service';
 
+//import { ChangeDetectorRef } from '@angular/core';
+import { TaskSharedService } from '../services/task-shared.service';
+
 import { environment } from "@environment/environment";
+
+@Component({
+  selector: 'app-default-component',
+  template: `<div style="background: lightblue; color: white; padding: 10px;">Loading...</div>`,
+  standalone: true
+})
+export class DefaultComponent {}
 
 @Component({
   selector: 'app-task',
@@ -41,12 +51,19 @@ export class TaskComponent implements OnInit, OnDestroy {
   // message to send out using sendMessage function
   message = ""; 
 
+
+  connected: boolean = false;
+  currentComponent: any;
+  component: Type<any> | null = null; // Store the resolved component
+
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private router: Router,
     private wsService: WebSocketService,
     //private dataService: DataService
+    //private cdr: ChangeDetectorRef,
+    private taskSharedService: TaskSharedService,
   ) {
   }
 
@@ -63,8 +80,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // This task id, tid, is (tasktypeid, userid) all in 1 string, incarnated as a URL
     this.tid = this.route.snapshot.paramMap.get('tid'); // Read the 'tid' from the URL
+    
 
     if (this.tid != null) {
+      this.taskSharedService.setTid(this.tid);
+
       let params = new HttpParams()
         .set('tid', this.tid)
       ;
@@ -113,6 +133,12 @@ export class TaskComponent implements OnInit, OnDestroy {
 
               // Connect to track on server...
               this.wsService.connect(String(this.tid));
+            } else {
+              console.log(data, "---");
+              this.taskSharedService.setState(data['state']);
+              //this.getComponent('5');
+              this.getComponent(this.ttid);
+              this.connected = true;
             }
           },
 
@@ -123,6 +149,37 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  async getComponent(name: string) {
+    // https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
+    // https://stackoverflow.com/questions/72115880/typescript-angular-dynamic-imports-module-build-failed
+    // Need to have these lines in tsconfig.app.json
+    //
+    //  "include": [
+    //    "src/**/*.d.ts",
+    //    "src/app/task/tasks/*.ts"
+    //  ],
+    //  "exclude": [
+    //    "**/*.spec.ts"
+    //  ]
+    //
+
+    var componentName = `Task${name}Component`;
+
+    try {
+      //const { Task5Component } = await import(`./tasks/task-5.component`);
+      //this.component = Task5Component;
+
+      //const componentModule = await import(`./tasks/${name}.component.ts`);
+      const componentModule = await import(`./tasks/task-${name}.component.ts`);
+      const componentClass = componentModule[componentName];
+      this.component = componentClass;
+
+    } catch (error) {
+      console.error(`Error loading component ${name}:`, error);
+
+      this.component = DefaultComponent;
+    }
+  }
 
 
   onAnswerChange(questionIndex: number, answer: number) {
@@ -210,9 +267,6 @@ export class TaskComponent implements OnInit, OnDestroy {
         );
     }
   }
-
-
-
 
   changeValue() {
     if (this.n !== null) {

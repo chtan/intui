@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WebSocketService } from './websocket.service';
+import { TaskSharedService } from './task-shared.service';
 
-describe('WebSocketService', () => {
-  let service: WebSocketService;
+describe('TaskSharedService', () => {
+  let service: TaskSharedService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(WebSocketService);
+    service = TestBed.inject(TaskSharedService);
   });
 
   it('should be created', () => {

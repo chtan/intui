@@ -81,8 +81,19 @@
   </div>
 
   <div *ngSwitchDefault>
-    Waiting...
+    <div [ngSwitch]="connected">
+      <div *ngSwitchCase="true">
+        <ng-container *ngComponentOutlet="component"></ng-container>
+      </div>
+
+      <div *ngSwitchDefault>
+        Connecting...
+      </div>
+    </div>
   </div>
 
 </div>
+
+
+
 
