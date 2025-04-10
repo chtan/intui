@@ -18,6 +18,21 @@
 <br>
 
 <div>
+  <p><b><u>Controls</u></b></p>
+    
+  <div style="margin: 20px;">
+    <mat-slide-toggle 
+      [checked]="controls.auto"
+      (change)="onToggleChange($event)">
+      Autorun
+    </mat-slide-toggle>
+  </div>
+
+</div>
+
+<br>
+
+<div>
   <p><b><u>Statistics</u></b></p>
 
   <div [ngSwitch]="tid">

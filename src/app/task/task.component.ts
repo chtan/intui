@@ -136,6 +136,8 @@ export class TaskComponent implements OnInit, OnDestroy {
             } else {
               console.log(data, "---");
               this.taskSharedService.setState(data['state']);
+              this.taskSharedService.setStructure(data['structure']);
+              this.taskSharedService.setControls(data['controls']);
               //this.getComponent('5');
               this.getComponent(this.ttid);
               this.connected = true;

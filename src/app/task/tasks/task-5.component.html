@@ -1,26 +1,158 @@
-<div class="flex items-center space-x-4">
-  <!-- Left Button -->
-  <button 
-    (click)="handler('decreasePage')" 
-    [disabled]="state.page === 0" 
-    class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
-  >
-    &larr;
-  </button>
+<div *ngIf="state.page < 3 && state.page > -1" style="height: 50px;">
+  <div *ngIf="!controls.auto" class="flex items-center space-x-4">
+    <!-- Left Button -->
+    <button 
+      (click)="handler('decreasePage')" 
+      [disabled]="state.page === 0" 
+      class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
+    >
+      &larr;
+    </button>
 
-  <!-- Page Number -->
-  <span class="text-lg font-semibold">{{ state.page }}</span>
+    <!-- Page Number -->
+    <span class="text-lg font-semibold">{{ state.page }}</span>
 
-  <!-- Right Button -->
-  <button 
-    (click)="handler('increasePage')" 
-    [disabled]="state.page === 5" 
-    class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
-  >
-    &rarr;
-  </button>
+    <!-- Right Button -->
+    <button 
+      (click)="handler('increasePage')" 
+      [disabled]="state.page === structure.maxPageIndex" 
+      class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
+    >
+      &rarr;
+    </button>
+  </div>
 </div>
 
 <div id="content">
+  <!--
   {{ state.content }}
+  -->
+
+  <div [ngSwitch]="state.page">
+
+    <div *ngSwitchCase="-1">
+      <div class="container2">
+        <button (click)="handler('start')">Start</button>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="0">
+      <div style="display: flex; justify-content: center;margin-top: 0px;">
+        <img src="{{ mediaUrl }}{{ structure.imageUrl }}" height="600px" alt="audio image" />
+      </div>
+
+      <div *ngIf="!controls.auto">
+        <br>
+
+      <div style="display: flex; justify-content: center;">
+        <audio controls>
+          <source src="{{ mediaUrl }}{{ structure.audioUrl }}" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="1">
+      <div class="container">
+        <div class="content">
+          <div style="display: flex; justify-content: center; margin-top: 0px; font-size: 36px;">
+            <markdown ngPreserveWhitespaces
+              [data]="structure.markdown"
+              [disableSanitizer]="true">
+            </markdown>
+          </div>
+
+          <div>
+            <label
+              *ngFor="let option of structure.options; let i = index"
+              style="display: block; margin-bottom: 8px; font-size: 28px;"
+            >
+              <input
+                type="radio"
+                name="choices"
+                [value]="option"
+                [checked]="i === state.selectedOption"
+                (change)="onSelect(i)"
+              />
+              {{ option }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!controls.auto; else autoControl">
+      <div style="display: flex; justify-content: center;">
+        <audio controls>
+          <source src="{{ mediaUrl }}{{ structure.audioUrl }}" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+      </div>
+
+      <ng-template #autoControl>
+        <app-svg-countdown 
+          [duration]="countdownDuration" 
+          [enableSound]="soundEnabled"
+          (countdownComplete)="onCountdownComplete()">
+        </app-svg-countdown>
+      </ng-template>
+    </div>
+
+    <div *ngSwitchCase="2">
+      <div class="container">
+        <div class="content">
+          <div style="display: flex; justify-content: center;font-size: 36px;">
+            <markdown ngPreserveWhitespaces katex
+              [data]="structure.markdown"
+              [disableSanitizer]="true">
+            </markdown>
+          </div>
+
+          <div>
+            <label
+              *ngFor="let option of structure.options; let i = index"
+              style="display: block; margin-bottom: 8px; font-size: 28px;"
+            >
+              <input
+                type="radio"
+                name="choices"
+                [value]="option"
+                [checked]="i === state.selectedOption"
+                (change)="onSelect(i)"
+              />
+              {{ option }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!controls.auto; else autoControl">
+      <div style="display: flex; justify-content: center;">
+        <audio controls>
+          <source src="{{ mediaUrl }}{{ structure.audioUrl }}" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+      <br>
+      <div style="display: flex; justify-content: center;">
+        <button (click)="handler('submit')">Submit</button>
+      </div>
+      </div>
+
+      <ng-template #autoControl>
+        <app-svg-countdown 
+          [duration]="countdownDuration" 
+          [enableSound]="soundEnabled"
+          (countdownComplete)="onCountdownComplete()">
+        </app-svg-countdown>
+      </ng-template>
+    </div>
+
+    <div *ngSwitchDefault>
+      <div class="container2">
+        <p class="text">The End</p>
+      </div>
+    </div>
+  </div>  
 </div>

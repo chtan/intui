@@ -1,0 +1,31 @@
+/* Center the SVG and style it */
+svg {
+  display: block;
+  margin: auto;
+  background-color: #f4f4f4;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Background circle */
+circle:nth-child(1) {
+  stroke: #e6e6e6; /* Light gray background circle */
+  stroke-width: 10;
+  fill: transparent;
+}
+
+/* Foreground (countdown) circle */
+circle:nth-child(2) {
+  stroke: #00bfff; /* Blue color for the countdown circle */
+  stroke-width: 10;
+  fill: transparent;
+  transition: stroke-dashoffset 1s ease-in-out; /* Smooth transition for countdown */
+}
+
+/* Display the remaining time */
+.countdown-time {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 10px;
+}

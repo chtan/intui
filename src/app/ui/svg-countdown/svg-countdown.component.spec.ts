@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Task5Component } from './task-5.component';
+import { SvgCountdownComponent } from './svg-countdown.component';
 
-describe('Task5Component', () => {
-  let component: Task5Component;
-  let fixture: ComponentFixture<Task5Component>;
+describe('SvgCountdownComponent', () => {
+  let component: SvgCountdownComponent;
+  let fixture: ComponentFixture<SvgCountdownComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Task5Component]
+      imports: [SvgCountdownComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Task5Component);
+    fixture = TestBed.createComponent(SvgCountdownComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

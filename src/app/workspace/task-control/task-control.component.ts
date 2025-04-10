@@ -1,16 +1,16 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
-//import { NgFor } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule, MatButtonToggleChange } from '@angular/material/button-toggle';
-
-import { WebSocketService } from '../../services/websocket.service';
-import { Subscription } from 'rxjs';
+import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { CookieService } from 'ngx-cookie-service';
+import { Subscription } from 'rxjs';
+
 import { environment } from "@environment/environment";
+import { WebSocketService } from '../../services/websocket.service';
 
 // Ref: https://blog.logrocket.com/data-visualization-angular-d3-js/
 import * as d3 from 'd3';
@@ -21,6 +21,7 @@ declare var $: any;
   imports: [
     //NgFor,
     MatButtonToggleModule,
+    MatSlideToggleModule,
     CommonModule,
     RouterLink,
     FormsModule,
@@ -52,13 +53,15 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   statistics: any[] = [];
   globalStatistics: any = {};
 
+  isChecked = false; // Initially the toggle is off
+  controls: any = {};
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private wsService: WebSocketService
+    private wsService: WebSocketService,
   ) {}
 
   // These 2 functions pertain to the widgets at the bottom,
@@ -76,12 +79,51 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
       this.tid = params['tid']; // Extract 'id' from URL
 
+      //this.loadControls();
       this.loadTask();  // Function to update content
     });
 
     // this does not do the job as it is one-off
     //this.tid = this.route.snapshot.paramMap.get('tid'); // Read the 'uid' from the URL
   }
+
+  onToggleChange(event: MatSlideToggleChange) {
+    //console.log('Slide Toggle Changed:', event.checked); // Will log true or false based on the toggle state
+    this.isChecked = event.checked; // You can also update the component's state here
+
+    this.handler("set_auto", Number(this.isChecked));
+    this.controls.auto = this.isChecked;
+  }
+
+  handler(s: string, ...optionalArgs: any[]) {
+    if (this.tid != "") {
+      let uf = [
+        [
+          s,
+          optionalArgs,
+        ]
+      ];
+
+      let params = new HttpParams()
+        .set('uid', this.cookieService.get('Coordinator'))
+        .set('tid', String(this.tid))
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      this.http.get('http://' + environment.apiUrl + '/workspace/update_state', { params })
+        .subscribe(
+          (data: any) => {
+            console.log(data);
+
+          },
+
+          (error: any) => {
+            console.error('Error fetching data:', error);
+          }
+        );
+    }
+  }
+
 
   private loadTask(): void {
 
@@ -175,7 +217,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
               var tmpstate = data['state'];
               this.globalStatistics = data['statistics'];
-              console.log("$%^", this.globalStatistics);
+              //console.log("$%^", this.globalStatistics);
 
               //console.log(tmpstate, tmpstate["6b26107c"], "****", typeof tmpstate);
               for (const key in tmpstate) {
@@ -253,7 +295,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
         this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
           .subscribe(
             (data: any) => {
-              console.log('000', data);
+              //console.log('000', data);
               
               if (data['status'] != 'ok') {
                 this.cookieService.delete('Coordinator');
@@ -262,11 +304,26 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
               var tmpstate = data['state'];
 
+              this.controls = data['controls'];
+
+
               for (const key in tmpstate) {
                 this.links.push(String(key));
                 this.state[key] = tmpstate[key]["n"];
               }
               this.recipientList = this.links;
+
+              // Connect to websocket
+              this.wsService.connect(this.cookieService.get('Coordinator'));
+
+              // Subscribe to listen to and use incoming messages
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    this.receivedMessage = message;
+                  }
+                }
+              );
             },
             
             (error: any) => {
