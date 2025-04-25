@@ -19,13 +19,17 @@
 
 <div>
   <p><b><u>Controls</u></b></p>
-    
-  <div style="margin: 20px;">
-    <mat-slide-toggle 
-      [checked]="controls.auto"
-      (change)="onToggleChange($event)">
-      Autorun
-    </mat-slide-toggle>
+   
+  <div [ngSwitch]="tid">
+
+    <div style="margin: 20px;" *ngSwitchCase="'5'">
+      <mat-slide-toggle 
+        [checked]="controls.auto"
+        (change)="onToggleChange($event)">
+        Autorun
+      </mat-slide-toggle>
+    </div>
+
   </div>
 
 </div>
@@ -41,6 +45,10 @@
     </div>
 
     <div *ngSwitchCase="'3'">
+      <pre>{{ globalStatistics | json }}</pre>
+    </div>
+    
+    <div *ngSwitchCase="'6'">
       <pre>{{ globalStatistics | json }}</pre>
     </div>
   </div>

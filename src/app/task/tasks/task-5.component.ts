@@ -292,8 +292,13 @@ export class Task5Component implements OnInit, OnDestroy {
             console.log(data);
 
             // Need to update this on the shared data service????
-            this.state = data['state'];
-            this.structure = data['structure'];
+            // This is a bug - refer to task-6
+            //this.state = data['state'];
+            //this.structure = data['structure'];
+            
+            // It should be this...
+            this.taskSharedService.setState(data['state']);
+            this.taskSharedService.setStructure(data['structure']);
 
             if (this.controls.auto && ['increasePage', 'start'].includes(s)) {
               if (this.state.page == 0) {

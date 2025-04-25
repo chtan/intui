@@ -331,6 +331,56 @@ export class TaskControlComponent implements OnInit, OnDestroy {
             }
           );
       }
+
+    } else if (this.tid == "6") {
+      if (this.cookieService.check('Coordinator')) {
+
+        let params = new HttpParams()
+          .set('uid', this.cookieService.get('Coordinator'))
+          .set('tid', String(this.tid))
+        ;
+
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+          .subscribe(
+            (data: any) => {
+              if (data['status'] != 'ok') {
+                this.cookieService.delete('Coordinator');
+                this.router.navigate(['/']);
+              }
+
+              var tmpstate = data['state'];
+              this.globalStatistics = data['statistics'];
+
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+
+              // Connect to websocket
+              this.wsService.connect(this.cookieService.get('Coordinator'));
+
+              // Subscribe to listen to and use incoming messages
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    console.log("Web Socket", message);
+                    this.receivedMessage = message;
+
+                    if (message['message'] == 'update statistics') {
+                      this.globalStatistics = message['data'];
+                    }
+                  }
+                }
+              );
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
     } else {
 
     }

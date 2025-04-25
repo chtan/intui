@@ -80,7 +80,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // This task id, tid, is (tasktypeid, userid) all in 1 string, incarnated as a URL
     this.tid = this.route.snapshot.paramMap.get('tid'); // Read the 'tid' from the URL
-    
 
     if (this.tid != null) {
       this.taskSharedService.setTid(this.tid);
@@ -134,13 +133,15 @@ export class TaskComponent implements OnInit, OnDestroy {
               // Connect to track on server...
               this.wsService.connect(String(this.tid));
             } else {
-              console.log(data, "---");
+              //console.log(data, "---");
               this.taskSharedService.setState(data['state']);
               this.taskSharedService.setStructure(data['structure']);
               this.taskSharedService.setControls(data['controls']);
               //this.getComponent('5');
               this.getComponent(this.ttid);
               this.connected = true;
+
+              //this.wsService.connect(String(this.tid));
             }
           },
 
