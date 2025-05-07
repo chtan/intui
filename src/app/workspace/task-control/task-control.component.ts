@@ -56,6 +56,8 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   isChecked = false; // Initially the toggle is off
   controls: any = {};
 
+  environment = environment;
+
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
@@ -332,7 +334,8 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           );
       }
 
-    } else if (this.tid == "6") {
+    //} else if (this.tid == "6") {
+    } else if (environment.constants.workspaceStdVar2.includes(this.tid + '')) {
       if (this.cookieService.check('Coordinator')) {
 
         let params = new HttpParams()

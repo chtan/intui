@@ -39,6 +39,8 @@
 <div>
   <p><b><u>Statistics</u></b></p>
 
+  <!--
+
   <div [ngSwitch]="tid">
     <div *ngSwitchCase="'1'">
       <figure id="bar"></figure>
@@ -52,8 +54,19 @@
       <pre>{{ globalStatistics | json }}</pre>
     </div>
   </div>
+
+  -->
+
+  <div *ngIf="['1'].includes(tid + '')">
+    <figure id="bar"></figure>
+  </div>
+
+  <div *ngIf="environment.constants.workspaceStdVar1.includes(tid + '')">
+    <pre>{{ globalStatistics | json }}</pre>
+  </div>
 </div>
 
+<!--
 <div [ngSwitch]="tid">
   <div *ngSwitchCase="'1'">
     <br>
@@ -68,3 +81,19 @@
     <button (click)="disconnect()">Disconnect</button>
   </div>
 </div>
+-->
+
+<div *ngIf="['1'].includes(tid + '')">
+  <br>
+
+  <p><b><u>Web Socket</u></b></p>
+
+  <input type="text" [(ngModel)]="message" placeholder="Enter message" />
+  
+  <br>
+  
+  <button (click)="sendMessage()">Send Message</button>
+  <button (click)="disconnect()">Disconnect</button>
+</div>
+
+
