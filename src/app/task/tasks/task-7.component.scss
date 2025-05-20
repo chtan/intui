@@ -1,0 +1,35 @@
+button:disabled {
+	background-color: #ccc;
+	color: #666;
+	cursor: not-allowed;
+	opacity: 0.7;
+}
+
+.side-panel {
+  width: 250px;
+  transition: transform 0.3s ease;
+  height: 100vh;
+  z-index: 1040;
+  right: 0;
+}
+
+.side-panel.closed {
+  transform: translateX(90%);
+}
+
+.tab-label {
+  width: 40px;
+  height: 100px;
+  writing-mode: vertical-rl;
+  text-align: center;
+  cursor: pointer;
+  background-color: #0d6efd;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: -40px;
+  transform: translateY(-50%);
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  padding: 5px;
+}

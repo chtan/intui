@@ -1,27 +1,22 @@
-<div>
-  <span><b>Task: </b></span>{{ tid }}
-</div>
+<h3>Task {{ tid }}</h3>
+<div></div>
 
-<br>
+<br><br>
 
+<h3>Users</h3>
 <div>
-  <p><b><u>Users</u></b></p>
-    
   <ul>
     <li *ngFor="let item of links">
       <a [routerLink]="['/task', item]" target="_blank">{{ item }}</a>
     </li>
   </ul>
-
 </div>
 
-<br>
+<br><br>
 
+<h3>Controls</h3>
 <div>
-  <p><b><u>Controls</u></b></p>
-   
   <div [ngSwitch]="tid">
-
     <div style="margin: 20px;" *ngSwitchCase="'5'">
       <mat-slide-toggle 
         [checked]="controls.auto"
@@ -29,34 +24,13 @@
         Autorun
       </mat-slide-toggle>
     </div>
-
   </div>
-
 </div>
 
-<br>
+<br><br>
 
+<h3>Statistics</h3>
 <div>
-  <p><b><u>Statistics</u></b></p>
-
-  <!--
-
-  <div [ngSwitch]="tid">
-    <div *ngSwitchCase="'1'">
-      <figure id="bar"></figure>
-    </div>
-
-    <div *ngSwitchCase="'3'">
-      <pre>{{ globalStatistics | json }}</pre>
-    </div>
-    
-    <div *ngSwitchCase="'6'">
-      <pre>{{ globalStatistics | json }}</pre>
-    </div>
-  </div>
-
-  -->
-
   <div *ngIf="['1'].includes(tid + '')">
     <figure id="bar"></figure>
   </div>
@@ -66,13 +40,11 @@
   </div>
 </div>
 
-<!--
-<div [ngSwitch]="tid">
-  <div *ngSwitchCase="'1'">
-    <br>
+<div *ngIf="['1'].includes(tid + '')">
+  <br><br>
 
-    <p><b><u>Web Socket</u></b></p>
-
+  <h3>Web Socket</h3>
+  <div>
     <input type="text" [(ngModel)]="message" placeholder="Enter message" />
     
     <br>
@@ -80,20 +52,6 @@
     <button (click)="sendMessage()">Send Message</button>
     <button (click)="disconnect()">Disconnect</button>
   </div>
-</div>
--->
-
-<div *ngIf="['1'].includes(tid + '')">
-  <br>
-
-  <p><b><u>Web Socket</u></b></p>
-
-  <input type="text" [(ngModel)]="message" placeholder="Enter message" />
-  
-  <br>
-  
-  <button (click)="sendMessage()">Send Message</button>
-  <button (click)="disconnect()">Disconnect</button>
 </div>
 
 

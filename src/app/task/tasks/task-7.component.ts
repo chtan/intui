@@ -81,8 +81,14 @@ export class Task7Component implements OnInit, OnDestroy {
     this.handler('submitChoice', questionIndex, this.selectedAnswers[questionIndex]);
   }
 
-  navigate(page: number) {
-    this.handler('navigate', page);
+  navigate(dir: number) {
+    const newpage = this.state.page + dir;
+
+    console.log(newpage);
+
+    if ((newpage >= 0) && (newpage < this.state.pageState.length)) {
+      this.handler('navigate', newpage);
+    }
   }
 
   ngOnDestroy(): void {
@@ -91,6 +97,10 @@ export class Task7Component implements OnInit, OnDestroy {
     }
     
     this.wsService.disconnect();
+  }
+
+  togglePanel(): void {
+    document.getElementById('sidePanel')?.classList.toggle('closed');
   }
 
   handler(s: string, ...optionalArgs: any[]) {
