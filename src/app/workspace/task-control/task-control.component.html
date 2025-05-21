@@ -37,6 +37,8 @@
 
   <div *ngIf="environment.constants.workspaceStdVar1.includes(tid + '')">
     <pre>{{ globalStatistics | json }}</pre>
+
+    <button class="btn btn-primary" (click)="downloadData('statistics')">Download CSV</button>
   </div>
 </div>
 

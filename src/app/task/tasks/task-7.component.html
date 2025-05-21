@@ -19,7 +19,7 @@
               name="question{{ state.page }}"
               [value]="j"
               (change)="onAnswerChange(state.page, j)"
-              [checked]="selectedAnswers[state.page] === j"
+              [(ngModel)]="selectedAnswers[state.page]"
               [disabled]="!state.pageState[state.page].chooseState"
             />
             {{ choice }}

@@ -10,8 +10,6 @@ import { environment } from "@environment/environment";
 
 import { DataService } from '../services/data.service';
 
-declare var feather: any;
-
 @Component({
   selector: 'app-workspace',
   imports: [
@@ -74,6 +72,5 @@ export class WorkspaceComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    feather.replace({ 'aria-hidden': 'true' })
   }
 }

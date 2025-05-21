@@ -50,15 +50,14 @@ export class Task7Component implements OnInit, OnDestroy {
         } else {
           this.selectedAnswers[i] = null;
         }
-      }
-      
+      }      
     });
 
     this.taskSharedService.currentData_structure.subscribe((data: any) => {
       this.structure = data;
     });
 
-    console.log(this.tid, this.state, this.structure, "!!");
+    console.log(this.tid, this.state, this.structure, this.selectedAnswers, "!!");
 
     // Connect web service to server
     this.wsService.connect(String(this.tid));
@@ -124,7 +123,6 @@ export class Task7Component implements OnInit, OnDestroy {
             
             this.taskSharedService.setState(data['state']);
             this.taskSharedService.setStructure(data['structure']);
-            
           },
 
           (error: any) => {

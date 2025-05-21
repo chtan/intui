@@ -97,6 +97,37 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     this.controls.auto = this.isChecked;
   }
 
+  downloadData(s: string, ...optionalArgs: any[]) {
+    if (this.tid != "") {
+      let uf = [
+        [
+          s,
+          optionalArgs,
+        ]
+      ];
+
+      let params = new HttpParams()
+        .set('uid', this.cookieService.get('Coordinator'))
+        .set('tid', String(this.tid))
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      this.http.get('http://' + environment.apiUrl + '/workspace/download_data', {
+        responseType: 'blob' as 'json',
+        params: params
+      }).subscribe((blob: any) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'data.csv';
+          document.body.appendChild(a); // For Firefox
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        });
+    }
+  }
+
   handler(s: string, ...optionalArgs: any[]) {
     if (this.tid != "") {
       let uf = [
@@ -479,4 +510,5 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     }
     this.wsService.disconnect();
   }
+
 }
