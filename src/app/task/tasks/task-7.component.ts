@@ -27,6 +27,8 @@ export class Task7Component implements OnInit, OnDestroy {
 
   private wsSubscription!: Subscription;
 
+  preIssuedToken = "XYZ";
+
   constructor(
     private http: HttpClient,
     private taskSharedService: TaskSharedService,
@@ -129,6 +131,30 @@ export class Task7Component implements OnInit, OnDestroy {
             console.error('Error fetching data:', error);
           }
         );
+    }
+  }
+
+  handler2(s: string, ...optionalArgs: any[]) {
+    if (this.tid != "") {
+      let uf = [
+        [
+          s,
+          optionalArgs,
+        ]
+      ];
+
+      let params = new HttpParams()
+        .set('tid', this.tid)
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      this.http.get('http://' + environment.apiUrl + '/api/task/', {
+        headers: {
+          Authorization: 'Bearer ' + this.preIssuedToken
+        }
+      }).subscribe(res => {
+        console.log(res);
+      });
     }
   }
 }

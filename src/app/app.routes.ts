@@ -5,6 +5,7 @@ import { WorkspaceComponent } from './workspace/workspace.component';
 import { TaskControlComponent } from './workspace/task-control/task-control.component';
 import { TaskspaceComponent } from './workspace/taskspace/taskspace.component';
 import { TaskComponent } from './task/task.component';
+import { AuthGuard } from './auth/auth.guard';
 
 
 export const routes: Routes = [
@@ -16,7 +17,8 @@ export const routes: Routes = [
 	  	children: [
 	  		{ path: '', component: TaskspaceComponent },
 	    	{ path: 'task/:tid', component: TaskControlComponent },
-	  	]
+	  	],
+	  	canActivate: [ AuthGuard ],
   	},
 
   	{ path: 'task/:tid', component: TaskComponent },
