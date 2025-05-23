@@ -73,4 +73,24 @@ export class WorkspaceComponent implements AfterViewInit {
 
   ngAfterViewInit() {
   }
+
+  logout(event: Event) {
+    event.preventDefault();  // prevent default link behavior
+
+    const refresh = localStorage.getItem('refresh_token');
+
+    this.http.post('http://' + environment.apiUrl + '/users/logout/', { refresh }).subscribe({
+      next: () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        // Even if logout fails, clear local storage
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        this.router.navigate(['/']);
+      }
+    });
+  }
 }

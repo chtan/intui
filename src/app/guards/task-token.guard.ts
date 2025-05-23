@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
-@Injectable({ providedIn: 'root' })
-export class AuthGuard implements CanActivate {
+@Injectable({
+  providedIn: 'root'
+})
+export class TaskTokenGuard implements CanActivate {
   constructor(private router: Router) {}
 
   canActivate(): boolean {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('task_token');
     if (token) {
       return true;
     } else {
