@@ -40,7 +40,8 @@ export class WorkspaceComponent implements AfterViewInit {
   }
 
   ngOnInit() {
-    this.uid = this.route.snapshot.paramMap.get('uid'); // Read the 'uid' from the URL
+    //this.uid = this.route.snapshot.paramMap.get('uid'); // Read the 'uid' from the URL
+    this.uid = this.cookieService.get('Coordinator');
 
     if (this.uid != null) {
       let params = new HttpParams()
@@ -51,7 +52,7 @@ export class WorkspaceComponent implements AfterViewInit {
       this.http.get('http://' + environment.apiUrl + '/workspace', { params })
         .subscribe(
           (data: any) => {
-            //console.log(data, data['status'] == 'ok');
+            //console.log(data, data['status'] == 'ok', '???');
 
             if (data['status'] != 'ok') {
               this.cookieService.delete('Coordinator');
@@ -79,17 +80,23 @@ export class WorkspaceComponent implements AfterViewInit {
 
     const refresh = localStorage.getItem('refresh_token');
 
-    this.http.post('http://' + environment.apiUrl + '/users/logout/', { refresh }).subscribe({
+    this.http.post('http://' + environment.apiUrl + '/users/logout/', { refresh }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`
+      }
+    }).subscribe({
       next: () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        this.cookieService.delete('Coordinator');
         this.router.navigate(['/']);
       },
       error: () => {
-        // Even if logout fails, clear local storage
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        this.router.navigate(['/']);
+        // Even if logout fails, remain on current page
+        //localStorage.removeItem('access_token');
+        //localStorage.removeItem('refresh_token');
+        //this.cookieService.delete('Coordinator');
+        this.router.navigate(['.']);
       }
     });
   }

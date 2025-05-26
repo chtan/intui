@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { environment } from "@environment/environment";
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,8 @@ import { environment } from "@environment/environment";
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  cookieService = inject(CookieService);
+
   username = '';
   password = '';
 
@@ -24,9 +27,14 @@ export class LoginComponent {
     this.http.post<any>('http://' + environment.apiUrl + '/users/login/', body)
       .subscribe({
         next: (res) => {
+          // localStorage is only stored on browser and is not sent to server
+          // unlike cookies.
           localStorage.setItem('access_token', res.access);
           localStorage.setItem('refresh_token', res.refresh);
-          this.router.navigate(['/workspace', this.username]);
+
+          this.cookieService.set('Coordinator', this.username);
+          this.router.navigate(['/workspace']);
+          //this.router.navigate(['/workspace', this.username]);
         },
         error: () => {
           this.router.navigate(['/']);

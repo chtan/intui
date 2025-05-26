@@ -15,7 +15,8 @@ export const routes: Routes = [
   	{ path: '', component: HomeComponent, pathMatch: 'full' },
 
   	{ 
-  		path: 'workspace/:uid', 
+  		//path: 'workspace/:uid',
+  		path: 'workspace',
   		component: WorkspaceComponent,
 	  	children: [
 	  		{ path: '', component: TaskspaceComponent },
