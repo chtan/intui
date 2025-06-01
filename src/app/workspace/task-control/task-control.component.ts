@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule, MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -415,6 +415,37 @@ export class TaskControlComponent implements OnInit, OnDestroy {
             }
           );
       }
+    }  else if (this.tid == "8") {
+      if (this.cookieService.check('Coordinator')) {
+
+        let params = new HttpParams()
+          .set('uid', this.cookieService.get('Coordinator'))
+          .set('tid', String(this.tid))
+        ;
+
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+          .subscribe(
+            (data: any) => {
+              if (data['status'] != 'ok') {
+                this.cookieService.delete('Coordinator');
+                this.router.navigate(['/']);
+              }
+
+              var tmpstate = data['state'];
+
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
     } else {
 
     }
@@ -511,4 +542,28 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     this.wsService.disconnect();
   }
 
+  goToTokenPage(event: Event) {
+    event.preventDefault();
+    const taskToken = (event.target as HTMLElement).innerText;
+
+    const headers = new HttpHeaders({
+      'X-Anonymous-Token': taskToken
+    });
+
+    this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
+      .subscribe({
+        next: (response) => {
+          localStorage.setItem('task_token', taskToken); // Save token
+
+          const url = this.router.serializeUrl(
+            this.router.createUrlTree(['/tempview'])
+          );
+          //this.router.navigate(['/tempview']); // Go to guarded page
+          window.open(url, '_blank');
+        },
+        error: () => {
+          this.router.navigate(['/']); // Go home if invalid
+        }
+      });
+  }
 }

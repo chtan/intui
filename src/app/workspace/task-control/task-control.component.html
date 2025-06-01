@@ -4,13 +4,34 @@
 <br><br>
 
 <h3>Users</h3>
-<div>
+
+<!--
+
+I'm testing, using 8, for the first time, tokenized task page. 
+The controller should be able to access the tokens under his control.
+However, the controller probably should not be given the right to alter the state
+in the task.
+
+One way to handle the logic, is on Django's side instead.
+Allow those with token or the coordinator to access the page.
+But only those with token are allowed to alter the state of the task.
+
+-->
+
+<div *ngIf="tid === '8'; else notEight">
+  <ul>
+    <li *ngFor="let item of links">
+      <a href="#" (click)="goToTokenPage($event)">{{ item }}</a>
+    </li>
+  </ul>
+</div>
+<ng-template #notEight>
   <ul>
     <li *ngFor="let item of links">
       <a [routerLink]="['/task', item]" target="_blank">{{ item }}</a>
     </li>
   </ul>
-</div>
+</ng-template>
 
 <br><br>
 

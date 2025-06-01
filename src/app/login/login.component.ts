@@ -20,7 +20,11 @@ export class LoginComponent {
   username = '';
   password = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    if (this.cookieService.check('Coordinator')) {
+      this.router.navigate(['/workspace']);
+    }
+  }
 
   login() {
     const body = { username: this.username, password: this.password };
