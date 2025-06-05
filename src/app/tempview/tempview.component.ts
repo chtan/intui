@@ -20,7 +20,7 @@ export class TempviewComponent {
 
     console.log(taskToken);
 
-    if (taskToken !== null) {
+    if (taskToken != null) {
       const headers = new HttpHeaders({
         'X-Anonymous-Token': taskToken
       });

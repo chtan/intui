@@ -4,7 +4,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { environment } from "@environment/environment";
-import { CookieService } from 'ngx-cookie-service';
+//import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -15,13 +15,15 @@ import { CookieService } from 'ngx-cookie-service';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  cookieService = inject(CookieService);
+  //cookieService = inject(CookieService);
 
   username = '';
   password = '';
 
   constructor(private http: HttpClient, private router: Router) {
-    if (this.cookieService.check('Coordinator')) {
+    //console.log(localStorage.getItem('Coordinator'), "!!!!");
+
+    if (localStorage.getItem('Coordinator') != null) {
       this.router.navigate(['/workspace']);
     }
   }
@@ -35,8 +37,8 @@ export class LoginComponent {
           // unlike cookies.
           localStorage.setItem('access_token', res.access);
           localStorage.setItem('refresh_token', res.refresh);
+          localStorage.setItem('Coordinator', this.username + '');
 
-          this.cookieService.set('Coordinator', this.username);
           this.router.navigate(['/workspace']);
           //this.router.navigate(['/workspace', this.username]);
         },

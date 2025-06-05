@@ -12,6 +12,8 @@ import { Subscription } from 'rxjs';
 import { environment } from "@environment/environment";
 import { WebSocketService } from '../../services/websocket.service';
 
+import { Histogram1Component } from "../../charts/histogram1/histogram1.component"
+
 // Ref: https://blog.logrocket.com/data-visualization-angular-d3-js/
 import * as d3 from 'd3';
 declare var $: any;
@@ -25,6 +27,7 @@ declare var $: any;
     CommonModule,
     RouterLink,
     FormsModule,
+    Histogram1Component,
   ],
   providers: [ CookieService ],
   templateUrl: './task-control.component.html',
@@ -51,10 +54,19 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   private height = 400 - (this.margin * 2);
 
   statistics: any[] = [];
-  globalStatistics: any = {};
+  globalStatistics: any;
+  questionStats: any;
+  /*
+  questionStats = {
+    "Question 1": { attempted: 1, not_attempted: 1 },
+    "Question 2": { attempted: 0, not_attempted: 2 },
+    "Question 3": { attempted: 2, not_attempted: 0 }
+  };
+  */
 
   isChecked = false; // Initially the toggle is off
   controls: any = {};
+  isServiceUnavailable: Boolean = false;
 
   environment = environment;
 
@@ -93,12 +105,58 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     //console.log('Slide Toggle Changed:', event.checked); // Will log true or false based on the toggle state
     this.isChecked = event.checked; // You can also update the component's state here
 
-    this.handler("set_auto", Number(this.isChecked));
-    this.controls.auto = this.isChecked;
+    if (this.tid != null && +this.tid < 9) {
+      this.handler("set_auto", Number(this.isChecked));
+      this.controls.auto = this.isChecked;
+    } else if (this.tid != null && +this.tid >= 10) {
+      this.handler("toggleService", Number(this.isChecked));
+      this.isServiceUnavailable = this.isChecked;
+    }
   }
 
   downloadData(s: string, ...optionalArgs: any[]) {
-    if (this.tid != "") {
+    if (this.tid != null && +this.tid >= 10) {
+      let uf = [
+        [
+          s,
+          optionalArgs,
+        ]
+      ];
+
+      const refresh = localStorage.getItem('refresh_token');
+      const accessToken = localStorage.getItem('access_token');
+      const coordinator = localStorage.getItem('Coordinator');
+
+      // Build headers
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${accessToken}`,
+        'x-refresh-token': refresh || ''  // optional: custom header for refresh token
+      });
+
+      // Build query params
+      let params = new HttpParams()
+        .set('uid', String(coordinator))
+        .set('tid', String(this.tid))
+        .set('applyString', JSON.stringify(uf));
+
+      // Make the HTTP GET request with headers and params
+      this.http.get('http://' + environment.apiUrl + '/api/workspace/download-data', {
+        headers: headers,
+        responseType: 'blob' as 'json',
+        params: params
+      }).subscribe((blob: any) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      });
+
+
+    } else if (this.tid != "") {
       let uf = [
         [
           s,
@@ -107,7 +165,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
       ];
 
       let params = new HttpParams()
-        .set('uid', this.cookieService.get('Coordinator'))
+        .set('uid', String(localStorage.getItem('Coordinator')))
         .set('tid', String(this.tid))
         .set('applyString', JSON.stringify(uf))
       ;
@@ -129,7 +187,8 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   }
 
   handler(s: string, ...optionalArgs: any[]) {
-    if (this.tid != "") {
+
+    if (this.tid != null && +this.tid < 9) {
       let uf = [
         [
           s,
@@ -138,7 +197,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
       ];
 
       let params = new HttpParams()
-        .set('uid', this.cookieService.get('Coordinator'))
+        .set('uid', String(localStorage.getItem('Coordinator')))
         .set('tid', String(this.tid))
         .set('applyString', JSON.stringify(uf))
       ;
@@ -154,6 +213,46 @@ export class TaskControlComponent implements OnInit, OnDestroy {
             console.error('Error fetching data:', error);
           }
         );
+    } else if (this.tid != null && +this.tid >= 10) {
+      let uf = [
+        [
+          s,
+          optionalArgs,
+        ]
+      ];
+
+
+
+      console.log(s, optionalArgs);
+
+      const refresh = localStorage.getItem('refresh_token');
+      const accessToken = localStorage.getItem('access_token');
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${accessToken}`,
+        'x-refresh-token': refresh || ''  // optional: custom header for refresh token
+      });
+
+      let params = new HttpParams()
+        .set('uid', String(localStorage.getItem('Coordinator')))
+        .set('tid', String(this.tid))
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+      //        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+      this.http.get('http://' + environment.apiUrl + '/api/workspace/apply-task-method', {
+        headers: headers,
+        params: params
+      }).subscribe(
+        (data: any) => {
+          console.log(data);
+        },
+
+        (error: any) => {
+          console.error('Error fetching data:', error);
+        }
+      );
     }
   }
 
@@ -166,10 +265,10 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
     if (this.tid == "1") {
 
-      if (this.cookieService.check('Coordinator')) {
+      if (localStorage.getItem('Coordinator') != null) {
 
         let params = new HttpParams()
-          .set('uid', this.cookieService.get('Coordinator'))
+          .set('uid', String(localStorage.getItem('Coordinator')))
           .set('tid', String(this.tid))
         ;
 
@@ -180,7 +279,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log("!!!!", data);
 
               if (data['status'] != 'ok') {
-                this.cookieService.delete('Coordinator');
+                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -195,7 +294,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log("abc", this.recipientList, this.state);
             
               // Connect to websocket
-              this.wsService.connect(this.cookieService.get('Coordinator'));
+              this.wsService.connect(String(localStorage.getItem('Coordinator')));
 
               // Subscribe to listen to and use incoming messages
               this.wsSubscription = this.wsService.messages$.subscribe(
@@ -230,10 +329,10 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           );
       }
     } else if (this.tid == "3") {
-      if (this.cookieService.check('Coordinator')) {
+      if (localStorage.getItem('Coordinator') != null) {
 
         let params = new HttpParams()
-          .set('uid', this.cookieService.get('Coordinator'))
+          .set('uid', String(localStorage.getItem('Coordinator')))
           .set('tid', String(this.tid))
         ;
 
@@ -244,7 +343,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log('000', data);
               
               if (data['status'] != 'ok') {
-                this.cookieService.delete('Coordinator');
+                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -261,7 +360,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               
 
               // Connect to websocket
-              this.wsService.connect(this.cookieService.get('Coordinator'));
+              this.wsService.connect(String(localStorage.getItem('Coordinator')));
 
               // Subscribe to listen to and use incoming messages
               this.wsSubscription = this.wsService.messages$.subscribe(
@@ -284,10 +383,10 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           );
       }
     } else if (this.tid == "4") {
-      if (this.cookieService.check('Coordinator')) {
+      if (localStorage.getItem('Coordinator') != null) {
 
         let params = new HttpParams()
-          .set('uid', this.cookieService.get('Coordinator'))
+          .set('uid', String(localStorage.getItem('Coordinator')))
           .set('tid', String(this.tid))
         ;
 
@@ -298,7 +397,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               console.log('000', data);
               
               if (data['status'] != 'ok') {
-                this.cookieService.delete('Coordinator');
+                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -317,10 +416,10 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           );
       }
     } else if (this.tid == "5") {
-      if (this.cookieService.check('Coordinator')) {
+      if (localStorage.getItem('Coordinator') != null) {
 
         let params = new HttpParams()
-          .set('uid', this.cookieService.get('Coordinator'))
+          .set('uid', String(localStorage.getItem('Coordinator')))
           .set('tid', String(this.tid))
         ;
 
@@ -331,7 +430,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log('000', data);
               
               if (data['status'] != 'ok') {
-                this.cookieService.delete('Coordinator');
+                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -347,7 +446,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               this.recipientList = this.links;
 
               // Connect to websocket
-              this.wsService.connect(this.cookieService.get('Coordinator'));
+              this.wsService.connect(String(localStorage.getItem('Coordinator')));
 
               // Subscribe to listen to and use incoming messages
               this.wsSubscription = this.wsService.messages$.subscribe(
@@ -367,10 +466,10 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
     //} else if (this.tid == "6") {
     } else if (environment.constants.workspaceStdVar2.includes(this.tid + '')) {
-      if (this.cookieService.check('Coordinator')) {
+      if (localStorage.getItem('Coordinator') != null) {
 
         let params = new HttpParams()
-          .set('uid', this.cookieService.get('Coordinator'))
+          .set('uid', String(localStorage.getItem('Coordinator')))
           .set('tid', String(this.tid))
         ;
 
@@ -379,7 +478,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           .subscribe(
             (data: any) => {
               if (data['status'] != 'ok') {
-                this.cookieService.delete('Coordinator');
+                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -393,7 +492,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               this.recipientList = this.links;
 
               // Connect to websocket
-              this.wsService.connect(this.cookieService.get('Coordinator'));
+              this.wsService.connect(String(localStorage.getItem('Coordinator')));
 
               // Subscribe to listen to and use incoming messages
               this.wsSubscription = this.wsService.messages$.subscribe(
@@ -415,11 +514,11 @@ export class TaskControlComponent implements OnInit, OnDestroy {
             }
           );
       }
-    }  else if (this.tid == "8") {
-      if (this.cookieService.check('Coordinator')) {
+    }  else if (['8', '9'].includes(this.tid + '')) {
+      if (localStorage.getItem('Coordinator') != null) {
 
         let params = new HttpParams()
-          .set('uid', this.cookieService.get('Coordinator'))
+          .set('uid', String(localStorage.getItem('Coordinator')))
           .set('tid', String(this.tid))
         ;
 
@@ -428,7 +527,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           .subscribe(
             (data: any) => {
               if (data['status'] != 'ok') {
-                this.cookieService.delete('Coordinator');
+                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -439,6 +538,94 @@ export class TaskControlComponent implements OnInit, OnDestroy {
                 this.state[key] = tmpstate[key]["n"];
               }
               this.recipientList = this.links;
+
+              // Connect to websocket
+              this.wsService.connect(String(localStorage.getItem('Coordinator')));
+
+              // Subscribe to listen to and use incoming messages
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    //console.log("Web Socket", message);
+                    this.receivedMessage = message;
+
+                    if (this.receivedMessage["message"] == "update global statistics") {
+                      this.globalStatistics = JSON.parse(this.receivedMessage["data"]);
+                    }
+                  }
+                }
+              );              
+            },
+            
+            (error: any) => {
+              console.error('Error fetching data:', error);
+            }
+          );
+      }
+    }  else if (this.tid != null && +this.tid >= 10) {
+      if (localStorage.getItem('Coordinator') != null) {
+
+        const refresh = localStorage.getItem('refresh_token');
+        const accessToken = localStorage.getItem('access_token');
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${accessToken}`,
+          'x-refresh-token': refresh || ''  // optional: custom header for refresh token
+        });
+
+        let params = new HttpParams()
+          .set('uid', String(localStorage.getItem('Coordinator')))
+          .set('tid', String(this.tid))
+        ;
+
+        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
+        //        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
+        this.http.get('http://' + environment.apiUrl + '/api/workspace/task', {
+          headers: headers,
+          params: params
+        }).subscribe(
+            (data: any) => {
+              console.log(data, "!!!!!!");
+
+              if (data['status'] != 'ok') {
+                localStorage.removeItem('Coordinator');
+                this.router.navigate(['/']);
+              }
+
+              var tmpstate = data['state'];
+
+              for (const key in tmpstate) {
+                this.links.push(String(key));
+                this.state[key] = tmpstate[key]["n"];
+              }
+              this.recipientList = this.links;
+
+              this.globalStatistics = data["statistics"];
+              this.questionStats = this.globalStatistics;
+
+              this.isServiceUnavailable = data['controls']['on'];
+
+              // Draw statistics chart
+
+
+              // Connect to websocket
+              this.wsService.connect(String(localStorage.getItem('Coordinator')));
+
+              // Subscribe to listen to and use incoming messages
+              this.wsSubscription = this.wsService.messages$.subscribe(
+                (message) => {
+                  if (message) {
+                    //console.log("Web Socket", message);
+                    this.receivedMessage = message;
+
+                    if (this.receivedMessage["message"] == "update global statistics") {
+                      this.globalStatistics = JSON.parse(this.receivedMessage["data"]);
+                      this.questionStats = this.globalStatistics;
+                    }
+                  }
+                }
+              );
+              
             },
             
             (error: any) => {
@@ -543,27 +730,57 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   }
 
   goToTokenPage(event: Event) {
+
     event.preventDefault();
     const taskToken = (event.target as HTMLElement).innerText;
 
-    const headers = new HttpHeaders({
-      'X-Anonymous-Token': taskToken
-    });
+    if (this.tid != null && +this.tid == 8) {
 
-    this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
-      .subscribe({
-        next: (response) => {
-          localStorage.setItem('task_token', taskToken); // Save token
-
-          const url = this.router.serializeUrl(
-            this.router.createUrlTree(['/tempview'])
-          );
-          //this.router.navigate(['/tempview']); // Go to guarded page
-          window.open(url, '_blank');
-        },
-        error: () => {
-          this.router.navigate(['/']); // Go home if invalid
-        }
+      const headers = new HttpHeaders({
+        'X-Anonymous-Token': taskToken
       });
+
+      this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
+        .subscribe({
+          next: (response) => {
+            localStorage.setItem('task_token', taskToken); // Save token
+
+            const url = this.router.serializeUrl(
+              this.router.createUrlTree(['/tempview'])
+            );
+            //this.router.navigate(['/tempview']); // Go to guarded page
+            window.open(url, '_blank');
+          },
+          error: () => {
+            this.router.navigate(['/']); // Go home if invalid
+          }
+        });
+
+    } else if (this.tid != null && +this.tid >= 9) {
+
+      // This is coordinator trying to view the current state.
+
+      const headers = new HttpHeaders({
+        'X-Anonymous-Token': taskToken
+      });
+
+      this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
+        .subscribe({
+          next: (response: any) => {
+            localStorage.setItem('task_token', taskToken); // Save token
+
+            const url = this.router.serializeUrl(
+              this.router.createUrlTree(['/taskpad'])
+            );
+            //this.router.navigate(['/tempview']); // Go to guarded page
+            window.open(url + '?taskid=' + response['taskid'], '_blank');
+          },
+          error: () => {
+            this.router.navigate(['/']); // Go home if invalid
+          }
+        });
+
+    }
+
   }
 }

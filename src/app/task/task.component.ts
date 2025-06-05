@@ -15,11 +15,11 @@ import { TaskSharedService } from '../services/task-shared.service';
 import { environment } from "@environment/environment";
 
 @Component({
-  selector: 'app-default-component',
+  selector: 'app-default2-component',
   template: `<div style="background: lightblue; color: white; padding: 10px;">Loading...</div>`,
   standalone: true
 })
-export class DefaultComponent {}
+export class Default2Component {}
 
 @Component({
   selector: 'app-task',
@@ -180,7 +180,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error(`Error loading component ${name}:`, error);
 
-      this.component = DefaultComponent;
+      this.component = Default2Component;
     }
   }
 
@@ -272,7 +272,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   changeValue() {
-    if (this.n !== null) {
+    if (this.n != null) {
 
       // Sent the incremented n to the server for updating.
       // If successful, update the local state.

@@ -1,0 +1,118 @@
+<div class="col-lg-8 mx-auto p-4 py-md-5 d-flex flex-column min-vh-100">
+    <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+    </header>
+    <main class="flex-fill">
+        <h2 class="text-body-emphasis title">{{ structure.title }}</h2>
+
+        <br>
+
+        <p class="fs-4 col-md-8 question">{{ structure.mcq.statement }}</p>
+
+        <br>
+
+        <p class="fs-5">Choose the correct answer:</p>
+
+        <div class="choices fs-5">
+          <div *ngFor="let choice of structure.mcq.choices; let j = index">
+            <input
+              type="radio"
+              name="question{{ pageIndex }}"
+              [value]="j"
+              (change)="onAnswerChange(pageIndex, j)"
+              [(ngModel)]="selectedAnswers[pageIndex]"
+              [disabled]="!state.pageState[pageIndex].chooseState"
+            />
+            {{ choice }}
+          </div>
+        </div>
+
+        <br>
+
+        <!-- Submit button for each question -->
+        <button class="btn btn-primary fs-5" (click)="submitAnswer(pageIndex)" [disabled]="!state.pageState[pageIndex].chooseState">Submit</button>
+
+        <br><br>
+
+        <!-- Right Side Panel -->
+        <div id="sidePanel" class="bg-light border-start side-panel position-fixed top-0 closed">
+          <div class="tab-label" (click)="togglePanel()">Statistics</div>
+          <div class="p-3">
+            <h5>Attempt Status</h5>
+            <ul>
+              <li *ngFor="let key of state.statistics | keyvalue">
+                {{ key.key }}: {{ key.value }}
+              </li>
+            </ul>
+            <!--
+            <button class="btn btn-sm btn-secondary" (click)="togglePanel()">Close</button>
+            -->
+          </div>
+        </div>
+    </main>
+    <footer class="pt-3 border-top d-flex align-items-center">
+        
+        <span class="">
+          <button [disabled]="pageIndex === 0" class="btn btn-light" (click)="navigate(-1)">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <button [disabled]="pageIndex === state.pageState.length - 1" class="btn btn-light" (click)="navigate(1)">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </span>
+        
+        <span class="ms-auto statistics">Page {{ pageIndex }}</span>
+    </footer>
+</div>
+
+<!-- Translucent Overlay -->
+<div *ngIf="isServiceUnavailable" class="overlay d-flex justify-content-center align-items-center">
+  <div class="card text-center p-4 shadow">
+    <div class="card-body">
+      <h4 class="card-title text-danger mb-3">Service Unavailable</h4>
+      <p class="card-text">The service is currently unavailable. Please try again later.</p>
+    </div>
+  </div>
+</div>
+
+<!-- The follow is from the template that initially worked...
+
+<button (click)="toggleView()">
+  Switch to {{ currentPage === '0' ? 'View 1' : 'View 0' }}
+</button>
+
+<div *ngIf="currentPage === '0'">
+  <h3>View 0</h3>
+  <label>
+    <input type="radio" name="viewAOptions" value="option1"
+           [(ngModel)]="selectedOptionA"
+           (change)="handleSelection('0', selectedOptionA)">
+    Option A1
+  </label>
+  <label>
+    <input type="radio" name="viewAOptions" value="option2"
+           [(ngModel)]="selectedOptionA"
+           (change)="handleSelection('0', selectedOptionA)">
+    Option A2
+  </label>
+</div>
+
+<div *ngIf="currentPage === '1'">
+  <h3>View 1</h3>
+  <label>
+    <input type="radio" name="viewBOptions" value="option1"
+           [(ngModel)]="selectedOptionB"
+           (change)="handleSelection('1', selectedOptionB)">
+    Option B1
+  </label>
+  <label>
+    <input type="radio" name="viewBOptions" value="option2"
+           [(ngModel)]="selectedOptionB"
+           (change)="handleSelection('1', selectedOptionB)">
+    Option B2
+  </label>
+</div>
+
+<button (click)="sendMessage()">
+  Send message
+</button>
+-->

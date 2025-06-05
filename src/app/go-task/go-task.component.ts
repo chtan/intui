@@ -20,15 +20,25 @@ export class GoTaskComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   submitToken() {
+    let url = '';
+
+    if (this.taskToken == 'some-uuid-or-jwt-like-string') {
+      url = '/tempview';
+    } else {
+      url = '/taskpad';
+    }
+
+    // This is the user entering the taskpad with his token.
+
     const headers = new HttpHeaders({
       'X-Anonymous-Token': this.taskToken
     });
 
     this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           localStorage.setItem('task_token', this.taskToken); // Save token
-          this.router.navigate(['/tempview']); // Go to guarded page
+          this.router.navigate([url], { queryParams: { taskid: response['taskid'] } }); // Go to guarded page
         },
         error: () => {
           this.router.navigate(['/']); // Go home if invalid

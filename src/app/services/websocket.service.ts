@@ -38,7 +38,7 @@ export class WebSocketService {
       .pipe(rxOps.retryWhen((errors) => errors.pipe(rxOps.delay(5000))))
       .subscribe(
         (message) => {
-          console.log('Message received:', message);
+          console.log('Message received:', message, typeof message);
           this.messageSubject.next(message);
         },
         (err) => {
@@ -55,8 +55,6 @@ export class WebSocketService {
   }
 
   sendMessage(recipients: string[], message: string): void {
-    //console.log(recipients, message)
-
     if (this.isConnected && this.socket$) {
       this.socket$.next({ recipients: recipients, message: message, data: 123 });
     } else {

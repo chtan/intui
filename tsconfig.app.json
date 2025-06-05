@@ -13,7 +13,8 @@
   ],
   "include": [
     "src/**/*.d.ts",
-    "src/app/task/tasks/*.ts"
+    "src/app/task/tasks/*.ts",
+    "src/app/taskpad/tasks/*.ts"
   ],
   "exclude": [
     "**/*.spec.ts"

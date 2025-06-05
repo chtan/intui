@@ -10,6 +10,7 @@ import { TaskTokenGuard } from './guards/task-token.guard';
 import { GoTaskComponent } from './go-task/go-task.component';
 import { LoginComponent } from './login/login.component';
 import { TempviewComponent } from './tempview/tempview.component';
+import { TaskpadComponent } from './taskpad/taskpad.component';
 
 export const routes: Routes = [
   	{ path: '', component: HomeComponent, pathMatch: 'full' },
@@ -30,6 +31,7 @@ export const routes: Routes = [
 
   	{ path: 'login', component: LoginComponent },
   	{ path: 'tempview', component: TempviewComponent, canActivate: [TaskTokenGuard] },
+  	{ path: 'taskpad', component: TaskpadComponent, canActivate: [TaskTokenGuard] },
 
   	{ path: '404', component: NotFoundComponent },
   	{ path: '**', redirectTo: '/404' },

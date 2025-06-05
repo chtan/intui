@@ -1,0 +1,41 @@
+<button (click)="toggleView()">
+  Switch to {{ currentPage === '0' ? 'View 1' : 'View 0' }}
+</button>
+
+<!-- View 0 -->
+<div *ngIf="currentPage === '0'">
+  <h3>View 0</h3>
+  <label>
+    <input type="radio" name="viewAOptions" value="option1"
+           [(ngModel)]="selectedOptionA"
+           (change)="handleSelection('0', selectedOptionA)">
+    Option A1
+  </label>
+  <label>
+    <input type="radio" name="viewAOptions" value="option2"
+           [(ngModel)]="selectedOptionA"
+           (change)="handleSelection('0', selectedOptionA)">
+    Option A2
+  </label>
+</div>
+
+<!-- View 1 -->
+<div *ngIf="currentPage === '1'">
+  <h3>View 1</h3>
+  <label>
+    <input type="radio" name="viewBOptions" value="option1"
+           [(ngModel)]="selectedOptionB"
+           (change)="handleSelection('1', selectedOptionB)">
+    Option B1
+  </label>
+  <label>
+    <input type="radio" name="viewBOptions" value="option2"
+           [(ngModel)]="selectedOptionB"
+           (change)="handleSelection('1', selectedOptionB)">
+    Option B2
+  </label>
+</div>
+
+<button (click)="sendMessage()">
+  Send message
+</button>

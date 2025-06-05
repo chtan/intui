@@ -5,7 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 
-import { CookieService } from 'ngx-cookie-service';
+//import { CookieService } from 'ngx-cookie-service';
 import { environment } from "@environment/environment";
 
 import { DataService } from '../services/data.service';
@@ -19,14 +19,14 @@ import { DataService } from '../services/data.service';
     MatIconModule,
   ],
   providers: [ 
-    CookieService,
+    //CookieService,
     DataService,
   ],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.scss'
 })
 export class WorkspaceComponent implements AfterViewInit {
-  cookieService = inject(CookieService);
+  //cookieService = inject(CookieService);
   dataService = inject(DataService);
 
   uid: string | null = ''; // e.g. chtan
@@ -41,7 +41,7 @@ export class WorkspaceComponent implements AfterViewInit {
 
   ngOnInit() {
     //this.uid = this.route.snapshot.paramMap.get('uid'); // Read the 'uid' from the URL
-    this.uid = this.cookieService.get('Coordinator');
+    this.uid = localStorage.getItem('Coordinator');
 
     if (this.uid != null) {
       let params = new HttpParams()
@@ -55,14 +55,13 @@ export class WorkspaceComponent implements AfterViewInit {
             //console.log(data, data['status'] == 'ok', '???');
 
             if (data['status'] != 'ok') {
-              this.cookieService.delete('Coordinator');
+              localStorage.removeItem('Coordinator');
               this.router.navigate(['/']);
             }
 
             this.listOfTids = data['tids'];
             this.dataService.updateData(this.listOfTids);
-
-            this.cookieService.set('Coordinator', String(this.uid));
+            localStorage.setItem('Coordinator', String(this.uid));
           },
 
           (error: any) => {
@@ -88,14 +87,14 @@ export class WorkspaceComponent implements AfterViewInit {
       next: () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        this.cookieService.delete('Coordinator');
+        localStorage.removeItem('Coordinator');
         this.router.navigate(['/']);
       },
       error: () => {
         // Even if logout fails, remain on current page
-        //localStorage.removeItem('access_token');
-        //localStorage.removeItem('refresh_token');
-        //this.cookieService.delete('Coordinator');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('Coordinator');
         this.router.navigate(['.']);
       }
     });

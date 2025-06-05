@@ -6,7 +6,8 @@ export const environment = {
     "workspaceStdVar1": [
       "3",
       "6",
-      "7"
+      "7",
+      "10"
     ],
     "workspaceStdVar2": [
       "6",
