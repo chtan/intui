@@ -6,19 +6,33 @@ import * as d3 from 'd3';
   selector: 'app-histogram1',
   standalone: true,
   imports: [CommonModule],
-  template: `<div #chartContainer style="width: 100%; height: 400px;"></div>`,
+  template: `
+    <div #chartContainer style="width: 100%; height: 400px;"></div>
+    <p *ngIf="!hasValidData" style="text-align: center; color: gray;">No data to display</p>
+  `,
 })
 export class Histogram1Component implements OnChanges {
   @Input() data: Record<string, { attempted: number; not_attempted: number }> = {};
   @ViewChild('chartContainer', { static: true }) chartRef!: ElementRef;
 
+  hasValidData = false;
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    this.hasValidData = this.data && Object.keys(this.data).length > 0;
+
+    if (changes['data'] && this.hasValidData) {
       this.createChart();
+    } else {
+      this.clearChart();
     }
   }
 
-  createChart(): void {
+  private clearChart(): void {
+    const element = this.chartRef.nativeElement;
+    d3.select(element).selectAll('*').remove();
+  }
+
+  private createChart(): void {
     const element = this.chartRef.nativeElement;
     d3.select(element).selectAll('*').remove(); // Clear previous chart
 

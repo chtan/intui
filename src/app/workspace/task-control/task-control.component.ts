@@ -10,7 +10,8 @@ import { CookieService } from 'ngx-cookie-service';
 import { Subscription } from 'rxjs';
 
 import { environment } from "@environment/environment";
-import { WebSocketService } from '../../services/websocket.service';
+//import { WebSocketService } from '../../services/websocket.service';
+import { WebSocket1Service } from '../../services/websocket1.service';
 
 import { Histogram1Component } from "../../charts/histogram1/histogram1.component"
 
@@ -57,13 +58,13 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   globalStatistics: any;
   questionStats: any;
   /*
-  questionStats = {
+  questionStats: any = {
     "Question 1": { attempted: 1, not_attempted: 1 },
     "Question 2": { attempted: 0, not_attempted: 2 },
     "Question 3": { attempted: 2, not_attempted: 0 }
   };
   */
-
+  
   isChecked = false; // Initially the toggle is off
   controls: any = {};
   isServiceUnavailable: Boolean = false;
@@ -75,7 +76,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private wsService: WebSocketService,
+    private wsService: WebSocket1Service,
   ) {}
 
   // These 2 functions pertain to the widgets at the bottom,
@@ -609,7 +610,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
 
               // Connect to websocket
-              this.wsService.connect(String(localStorage.getItem('Coordinator')));
+              this.wsService.connect(String(localStorage.getItem('Coordinator')), String(localStorage.getItem('access_token')));
 
               // Subscribe to listen to and use incoming messages
               this.wsSubscription = this.wsService.messages$.subscribe(

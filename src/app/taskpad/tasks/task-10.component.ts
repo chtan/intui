@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { WebSocketService } from '../../services/websocket.service';
+import { WebSocket2Service } from '../../services/websocket2.service';
 import { Taskshared1Service } from '../../services/taskshared1.service';
 //import { CookieService } from 'ngx-cookie-service';
 import { environment } from "@environment/environment";
@@ -136,7 +136,7 @@ export class Task10Component implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
-    private wsService: WebSocketService,
+    private wsService: WebSocket2Service,
     private taskshared1Service: Taskshared1Service,
   ) {
     if (localStorage.getItem('Coordinator') != null) {
