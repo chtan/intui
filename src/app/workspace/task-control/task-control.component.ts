@@ -610,7 +610,11 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
 
               // Connect to websocket
-              this.wsService.connect(String(localStorage.getItem('Coordinator')), String(localStorage.getItem('access_token')));
+              this.wsService.connect(
+                String(localStorage.getItem('Coordinator')), 
+                String(localStorage.getItem('access_token')),
+                this.tid + ''
+              );
 
               // Subscribe to listen to and use incoming messages
               this.wsSubscription = this.wsService.messages$.subscribe(

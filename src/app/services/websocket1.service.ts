@@ -25,13 +25,13 @@ export class WebSocket1Service {
   public messages$ = this.messageSubject.asObservable();
   private isConnected = false;
 
-  connect(username: string, jwt_token: string = ""): void {
+  connect(username: string, jwt_token: string = "", taskid: string = ""): void {
     if (this.isConnected) {
       console.warn('WebSocket is already connected.');
       return;
     }
 
-    const wsUrl = `ws://localhost:8000/ws/chat/${username}/?token=${jwt_token}`;
+    const wsUrl = `ws://localhost:8000/ws/chat/${username}/?token=${jwt_token}&taskid=${taskid}`;
     this.socket$ = webSocket(wsUrl);
 
     //console.log("websocket", jwt_token);
