@@ -124,18 +124,24 @@ export class TaskControlComponent implements OnInit, OnDestroy {
         ]
       ];
 
+      const coordinator = localStorage.getItem('Coordinator');
+      /*
       const refresh = localStorage.getItem('refresh_token');
       const accessToken = localStorage.getItem('access_token');
-      const coordinator = localStorage.getItem('Coordinator');
 
       // Build headers
       const headers = new HttpHeaders({
         Authorization: `Bearer ${accessToken}`,
         'x-refresh-token': refresh || ''  // optional: custom header for refresh token
       });
+      */
+
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'logged-in'
+      });
 
       // Build query params
-      let params = new HttpParams()
+      let params: HttpParams = new HttpParams()
         .set('uid', String(coordinator))
         .set('tid', String(this.tid))
         .set('applyString', JSON.stringify(uf));
@@ -222,16 +228,20 @@ export class TaskControlComponent implements OnInit, OnDestroy {
         ]
       ];
 
-
-
       console.log(s, optionalArgs);
 
+      /*
       const refresh = localStorage.getItem('refresh_token');
       const accessToken = localStorage.getItem('access_token');
 
       const headers = new HttpHeaders({
         Authorization: `Bearer ${accessToken}`,
         'x-refresh-token': refresh || ''  // optional: custom header for refresh token
+      });
+      */
+
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'logged-in'
       });
 
       let params = new HttpParams()
@@ -566,12 +576,18 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     }  else if (this.tid != null && +this.tid >= 10) {
       if (localStorage.getItem('Coordinator') != null) {
 
+        /*
         const refresh = localStorage.getItem('refresh_token');
         const accessToken = localStorage.getItem('access_token');
 
         const headers = new HttpHeaders({
           Authorization: `Bearer ${accessToken}`,
           'x-refresh-token': refresh || ''  // optional: custom header for refresh token
+        });
+        */
+
+        const headers = new HttpHeaders({
+          'X-Request-Type': 'logged-in'
         });
 
         let params = new HttpParams()
@@ -738,6 +754,7 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
     event.preventDefault();
     const taskToken = (event.target as HTMLElement).innerText;
+    localStorage.setItem('anon_token', taskToken);
 
     if (this.tid != null && +this.tid == 8) {
 
@@ -765,14 +782,20 @@ export class TaskControlComponent implements OnInit, OnDestroy {
 
       // This is coordinator trying to view the current state.
 
+      /*
       const headers = new HttpHeaders({
         'X-Anonymous-Token': taskToken
       });
+      */
+      
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'anonymous'
+      })
 
       this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
         .subscribe({
           next: (response: any) => {
-            localStorage.setItem('task_token', taskToken); // Save token
+            //localStorage.setItem('task_token', taskToken); // Save token
 
             const url = this.router.serializeUrl(
               this.router.createUrlTree(['/taskpad'])

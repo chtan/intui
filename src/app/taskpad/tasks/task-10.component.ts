@@ -157,8 +157,11 @@ export class Task10Component implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (localStorage.getItem('task_token') != null) {
-      this.taskToken = String(localStorage.getItem('task_token'));
+    //if (localStorage.getItem('task_token') != null) {
+    //  this.taskToken = String(localStorage.getItem('task_token'));
+
+    if (localStorage.getItem('anon_token') != null) {
+      this.taskToken = String(localStorage.getItem('anon_token'));
 
       // If not coordinator, then turn on some services.
       // I must turn on the web service because the task needs
@@ -309,9 +312,15 @@ export class Task10Component implements OnInit, OnDestroy {
         ]
       ];
 
+      /*
       const headers = new HttpHeaders({
         'X-Anonymous-Token': this.taskToken
       });
+      */
+
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'anonymous'
+      })
 
       const params = new HttpParams()
         .set('applyString', JSON.stringify(uf))

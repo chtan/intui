@@ -28,16 +28,23 @@ export class GoTaskComponent {
       url = '/taskpad';
     }
 
+    localStorage.setItem('anon_token', this.taskToken); // Save token
+
     // This is the user entering the taskpad with his token.
 
+    /*
     const headers = new HttpHeaders({
       'X-Anonymous-Token': this.taskToken
     });
+    */
+
+    const headers = new HttpHeaders({
+      'X-Request-Type': 'anonymous'
+    })
 
     this.http.get<{ message: string }>('http://' + environment.apiUrl + '/api/anon-data/', { headers })
       .subscribe({
         next: (response: any) => {
-          localStorage.setItem('task_token', this.taskToken); // Save token
           this.router.navigate([url], { queryParams: { taskid: response['taskid'] } }); // Go to guarded page
         },
         error: () => {
