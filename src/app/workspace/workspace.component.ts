@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { environment } from "@environment/environment";
 
 import { DataService } from '../services/data.service';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-workspace',
@@ -35,7 +36,8 @@ export class WorkspaceComponent implements AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
   ) {
   }
 
@@ -85,15 +87,17 @@ export class WorkspaceComponent implements AfterViewInit {
       }
     }).subscribe({
       next: () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        //localStorage.removeItem('access_token');
+        //localStorage.removeItem('refresh_token');
+        this.authService.logout();
         localStorage.removeItem('Coordinator');
         this.router.navigate(['/']);
       },
       error: () => {
         // Even if logout fails, remain on current page
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        //localStorage.removeItem('access_token');
+        //localStorage.removeItem('refresh_token');
+        this.authService.logout();
         localStorage.removeItem('Coordinator');
         this.router.navigate(['.']);
       }
