@@ -31,7 +31,7 @@ export class WebSocket1Service {
       return;
     }
 
-    const wsUrl = `ws://localhost:8000/ws/chat/${username}/?token=${jwt_token}&taskid=${taskid}`;
+    const wsUrl = `ws://localhost:8000/ws/chat/coordinator/${username}/?token=${jwt_token}&taskid=${taskid}`;
     this.socket$ = webSocket(wsUrl);
 
     //console.log("websocket", jwt_token);

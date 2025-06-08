@@ -24,7 +24,7 @@ export class Task10Component implements OnInit, OnDestroy {
   controls: any;
 
   // Template task-related variable
-  taskid = '9';
+  taskid = '10';
   taskToken = '';
   currentPage: '0' | '1' = '0';
   selectedOptionA: string = '';
@@ -172,7 +172,7 @@ export class Task10Component implements OnInit, OnDestroy {
       //
       // CONNECTION TO WEB SERVICE
       //
-      this.wsService.connect(this.taskToken);
+      this.wsService.connect(this.taskToken, this.taskid);
       this.wsSubscription = this.wsService.messages$.subscribe(
         (message) => {
           if (message) {

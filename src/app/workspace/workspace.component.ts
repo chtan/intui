@@ -45,7 +45,7 @@ export class WorkspaceComponent implements AfterViewInit {
 
     if (this.uid != null) {
       let params = new HttpParams()
-        .set('uid', this.uid)
+        .set('uid', this.uid + '')
       ;
 
       // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
