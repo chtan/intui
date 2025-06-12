@@ -9,7 +9,7 @@ export class DataService {
   data$ = this.dataSubject.asObservable();
 
   updateData(newData: any[]) {
-    console.log("updated:", newData);
+    //console.log("updated:", newData);
     this.dataSubject.next(newData);
   }
 }

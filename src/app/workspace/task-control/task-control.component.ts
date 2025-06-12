@@ -290,7 +290,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log("!!!!", data);
 
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -354,7 +353,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log('000', data);
               
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -408,7 +406,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               console.log('000', data);
               
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -441,7 +438,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               //console.log('000', data);
               
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -489,7 +485,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           .subscribe(
             (data: any) => {
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -538,7 +533,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
           .subscribe(
             (data: any) => {
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 
@@ -605,7 +599,6 @@ export class TaskControlComponent implements OnInit, OnDestroy {
               console.log(data, "!!!!!!");
 
               if (data['status'] != 'ok') {
-                localStorage.removeItem('Coordinator');
                 this.router.navigate(['/']);
               }
 

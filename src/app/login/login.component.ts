@@ -21,9 +21,23 @@ export class LoginComponent {
   password = '';
 
   constructor(private http: HttpClient, private router: Router) {
-    //console.log(localStorage.getItem('Coordinator'), "!!!!");
+    // This condition is added because sometimes coordinator is not null
+    // while the other 2 items are. Not sure why that happens.
+    // But it causes the system to hang on the front page,
+    // user unable to log in.
+    if (
+      localStorage.getItem('Coordinator') === null ||
+      localStorage.getItem('access_token') === null ||
+      localStorage.getItem('refresh_token') === null
+    ) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('Coordinator');
+    }
 
-    if (localStorage.getItem('Coordinator') != null) {
+    // User can't log in when they were previously logged in with session token which is uncleared.
+    // Need to do something about it...
+    if ((Boolean(1)) && (localStorage.getItem('Coordinator') != null)) {
       this.router.navigate(['/workspace']);
     }
   }
@@ -40,7 +54,6 @@ export class LoginComponent {
           localStorage.setItem('Coordinator', this.username + '');
 
           this.router.navigate(['/workspace']);
-          //this.router.navigate(['/workspace', this.username]);
         },
         error: () => {
           this.router.navigate(['/']);

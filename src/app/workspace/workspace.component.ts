@@ -1,7 +1,7 @@
 import { Component, inject, AfterViewInit  } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -46,24 +46,27 @@ export class WorkspaceComponent implements AfterViewInit {
     this.uid = localStorage.getItem('Coordinator');
 
     if (this.uid != null) {
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'logged-in'
+      });
+
       let params = new HttpParams()
-        .set('uid', this.uid + '')
+        .set('uid', this.uid)
       ;
 
-      // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
-      this.http.get('http://' + environment.apiUrl + '/workspace', { params })
-        .subscribe(
+      this.http.get('http://' + environment.apiUrl + '/api/workspace', {
+        headers: headers,
+        params: params
+      }).subscribe(
           (data: any) => {
             //console.log(data, data['status'] == 'ok', '???');
 
             if (data['status'] != 'ok') {
-              localStorage.removeItem('Coordinator');
               this.router.navigate(['/']);
             }
 
             this.listOfTids = data['tids'];
             this.dataService.updateData(this.listOfTids);
-            localStorage.setItem('Coordinator', String(this.uid));
           },
 
           (error: any) => {
@@ -87,18 +90,12 @@ export class WorkspaceComponent implements AfterViewInit {
       }
     }).subscribe({
       next: () => {
-        //localStorage.removeItem('access_token');
-        //localStorage.removeItem('refresh_token');
         this.authService.logout();
-        localStorage.removeItem('Coordinator');
         this.router.navigate(['/']);
       },
       error: () => {
         // Even if logout fails, remain on current page
-        //localStorage.removeItem('access_token');
-        //localStorage.removeItem('refresh_token');
         this.authService.logout();
-        localStorage.removeItem('Coordinator');
         this.router.navigate(['.']);
       }
     });
