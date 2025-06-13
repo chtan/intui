@@ -71,8 +71,6 @@ export class Task5Component implements OnInit, OnDestroy {
     
     this.taskSharedService.currentData_controls.subscribe((data: any) => {
       this.controls = data;
-
-      console.log("0000000000000000000", data);
     });
 
 

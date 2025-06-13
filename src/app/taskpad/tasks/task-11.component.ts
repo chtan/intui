@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MarkdownModule } from 'ngx-markdown';
 import { environment } from "@environment/environment";
@@ -22,7 +23,9 @@ import { SvgCountdownComponent } from '../../ui/svg-countdown/svg-countdown.comp
   styleUrl: './task-11.component.scss'
 })
 export class Task11Component implements OnInit, OnDestroy {
-  TESTING = true;
+  TESTING = false;
+
+  isServiceUnavailable = false;
 
   @ViewChild(SvgCountdownComponent) countdownComponent!: SvgCountdownComponent; // Reference to countdown component
 
@@ -32,7 +35,7 @@ export class Task11Component implements OnInit, OnDestroy {
 
   // Listen to messages on the socket connection
   private wsSubscription!: Subscription;
-  receivedMessage: string = '';
+  receivedMessage: any = '';
   recipientList: string[] = ["chtan"]; // List of recipients of messages
   // message to send out using sendMessage function
   message = "test"; 
@@ -41,13 +44,12 @@ export class Task11Component implements OnInit, OnDestroy {
   // the mode remains and he cannot change the task state of a user.
   coordinatorMode: boolean = false;
 
-  state: any = {
-    page: 0,
-    selectedOption: 0,
-  }
+  state: any = {};
 
-  //structure: any = null;
-  structure: any = {
+  page = 0;
+
+  structure: any;
+  pageStructure: any = {
     imageUrl: "tasks/task-5/boy+busstop.png",
     audioUrl: "tasks/task-5/boy+busstop.wav",
     options: [
@@ -74,6 +76,7 @@ export class Task11Component implements OnInit, OnDestroy {
   // Shared with coordinator task control
   controls: any = {
     auto: true,
+    on: true,
   };
 
   constructor(
@@ -97,88 +100,265 @@ export class Task11Component implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Start paging from here
-    this.state.page = -1;
-    
-    if (localStorage.getItem('task_token') != null) {
-      this.taskToken = String(localStorage.getItem('task_token'));
+    if (localStorage.getItem('anon_token') != null) {
+      this.taskToken = String(localStorage.getItem('anon_token'));
+
+      // Start paging from here
+      this.page = -1;
 
       // Connect to web service
       if (!this.coordinatorMode) {
-        this.wsService.connect(this.taskToken, this.taskid);
-        this.wsSubscription = this.wsService.messages$.subscribe(
-          (message) => {
-            if (message) {
-              this.receivedMessage = message; // Update component variable
-            }
-          }
-        );
       }
 
-      // load state
-      let uf = [
-        [
-          //'submitChoice',
-          //[questionIndex, this.selectedAnswers[questionIndex]],
-        ]
-      ];
+      //
+      // CONNECTION TO WEB SERVICE
+      //
+      this.wsService.connect(this.taskToken, this.taskid);
+      this.wsSubscription = this.wsService.messages$.subscribe(
+        (message) => {
+          if (message) {
+            //console.log(message, typeof message, "*******");
+            this.receivedMessage = message;
 
-      const headers = new HttpHeaders({
-        'X-Anonymous-Token': this.taskToken
+            if (this.receivedMessage['message'] == 'toggle service') {
+              // When coordinator toggles on/off, the task is restarted.
+              // The state remains unchanged though.
+              this.isServiceUnavailable = Boolean(this.receivedMessage['data']);
+              this.page = -1;
+              this.audio.pause();
+              this.audio.currentTime = 0;
+            }
+          }
+        }
+      );
+
+      //
+      // REGISTERS VARIABLES FOR LISTENING
+      //
+      this.taskshared1Service.sharedData_state.subscribe((data: any) => {
+        if (data != null) {
+          this.state = data;
+        }
       });
 
-      
-      const params = new HttpParams()
-        .set('applyString', JSON.stringify(uf))
-        ;
-      
-      this.http.get('http://' + environment.apiUrl + '/api/anon-data/get-state/', { headers, params })
-        .subscribe({
-          next: (response: any) => {
-            console.log(response, "get");
+      this.taskshared1Service.sharedData_structure.subscribe((data: any) => {
+        if (data != null) {
+          this.structure = data;
+        }
+      });
 
-            let state = response["state"];
-            
-          },
-          error: () => {
-          }
-        });
-    }
-  }
+      this.taskshared1Service.sharedData_controls.subscribe((data: any) => {
+        if (data != null) {
+          this.controls = data;
+          this.isServiceUnavailable = this.controls.on;
 
+          //console.log(this.isServiceUnavailable, data, "???????????????");
+        }
+      });
 
-  // User selects option from mcq
-  onSelect(i: any) {
+      // load state
+      this.handler("getCompositeOnStart")
 
+      // Just before browser navigates away, call this - helps to handle undesire behaviours. 
+      window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    };
   }
 
 
   // HTTP request to api server
   handler(s: string, ...optionalArgs: any[]) {
+    if (this.taskToken != "") {
+      let uf = [
+        [
+          s,
+          optionalArgs,
+        ]
+      ];
+
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'anonymous'
+      })
+
+      const params = new HttpParams()
+        .set('applyString', JSON.stringify(uf))
+      ;
+
+      this.http.get(
+        'http://' + environment.apiUrl + '/api/anon-data/apply-task-method/',
+        { headers, params }
+      ).subscribe(
+          (data: any) => {
+            //console.log(data, "------------");
+            this.taskshared1Service.setState(data['composite']['state']);
+            this.taskshared1Service.setStructure(data['composite']['structure']);
+            this.taskshared1Service.setControls(data['composite']['controls']);
+          },
+
+          (error: any) => {
+            console.error('Error fetching data:', error);
+          }
+        );
+    }
   }
 
 
-  // Handle countdown completion
-  onCountdownComplete() {
+  // User selects option from mcq
+  onSelect(choiceIndex:number, questionIndex:number) {
+    this.handler('setOption', choiceIndex, questionIndex);
   }
 
+
+  //
+  // Timer Controls
+  //
 
   // Start the timer countdown by calling startCountdown() in SvgCountdownComponent
   startCountdown() {
+    if (this.countdownComponent) {
+      this.countdownComponent.startCountdown();
+    }
+  }
+
+
+  // Handle countdown completion: on complete, move to the next state.
+  onCountdownComplete() {
+    this.playState = [this.playState[0], this.playState[1] + 1];
+    this.playScript();
   }
 
 
   // Pause
   playPause(n: number) {
+    // Non-blocking
+    setTimeout(() => {
+      // the playstate has a simple branching structure - refer to similar statements above/below
+      this.playState = [this.playState[0], this.playState[1] + 1]; 
+      this.playScript();
+    }, n * 1000);
   }
 
 
+  //
+  // Audio Control
+  //
   playAudio(url: string) {
+    try {
+      this.audio = new Audio(url);
+
+      // No need for this currently
+      this.audio.play().catch((error: any) => {
+      });;
+
+      this.audio.onended = () => {
+        //console.log("Audio ended!");
+        this.playState = [this.playState[0], this.playState[1] + 1];
+        this.playScript();
+      };
+    } catch (error) {
+      console.error('Something went wrong:', error);
+    }
   }
 
 
+  //
+  // Play Script for entire task
+  //
   playScript() {
+    var a = this.playState[0];
+    var b = this.playState[1];
+
+    switch (true) {
+      case a == 0 && b > 4:
+        this.playState = [1, 0];
+        a = 1;
+        b = 0;
+        break;
+
+      case a == 1 && b > 3:
+        this.playState = [2, 0];
+        a = 2;
+        b = 0;
+        break;
+
+      default:
+        //
+    }
+
+    switch (true) {
+      case a == 0 && b == 0:
+        this.playPause(3);
+        break;
+
+      case a == 0 && b == 1:
+        this.playAudio(this.mediaUrl + this.pageStructure.audioUrl);
+        break;
+
+      case a == 0 && b == 2:
+        this.playPause(3);
+        break;
+
+      case a == 0 && b == 3:
+        this.playPause(0.0);
+        break;
+
+      case a == 0 && b == 4:
+        this.onPlusButtonClick();
+        break;
+
+      case a == 1 && b == 0:
+        this.playPause(3);
+        break;
+
+      case a == 1 && b == 1:
+        this.playAudio(this.mediaUrl + this.pageStructure.audioUrl);
+        break;
+
+      case a == 1 && b == 2:
+        this.startCountdown();
+        break;
+
+      case a == 1 && b == 3:
+        this.onPlusButtonClick();
+        break;
+
+      case a == 2 && b == 0:
+        this.playPause(3);
+        break;
+
+      case a == 2 && b == 1:
+        this.playAudio(this.mediaUrl + this.pageStructure.audioUrl);
+        break;
+
+      case a == 2 && b == 2:
+        this.startCountdown();
+        break;
+
+      case a == 2 && b == 3:
+        this.onPlusButtonClick();
+        break;
+
+      default:
+        //console.log("Unknown fruit.");
+    }
   }
+
+
+  // This will execute when the refresh button is clicked,
+  // just before the page is refreshed.
+  // We will rewind the page to the start but keep the checking states
+  // when this happens.
+  private beforeUnloadHandler = (event: BeforeUnloadEvent): void => {
+    // Execute your cleanup or logic before the page unloads
+    //console.log('Before unload event triggered');
+    // Optionally, you can set a returnValue to show a confirmation dialog in some browsers.
+    //event.returnValue = '';
+
+    // If auto, need to restart, 
+    // as browser does not allow auto-play without user interaction.
+    //if (this.controls.auto) {
+    //  this.handler('restart');
+    //}
+  };
 
 
   ngOnDestroy() {
@@ -193,10 +373,24 @@ export class Task11Component implements OnInit, OnDestroy {
   // For TESTING
   //
   onPlusButtonClick() {
-    this.state.page += 1;
+    this.page += 1;
+
+    if ((this.page >= 0) || (this.page <= 2)) {
+      this.pageStructure = this.structure[this.page];
+    }
+
+    // If auto, start playing the app automatically
+    if (this.controls.auto) {
+      this.playState = [this.page, 0];
+      this.playScript();
+    }
   }
 
   onMinusButtonClick() {
-    this.state.page -= 1;
+    this.page -= 1;
+
+    if ((this.page >= 0) || (this.page <= 2)) {
+      this.pageStructure = this.structure[this.page];
+    }
   }
 }

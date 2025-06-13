@@ -4,24 +4,24 @@
 </div>
 
 
-<div *ngIf="state.page < 3 && state.page > -1" style="height: 50px;">
+<div *ngIf="page < 3 && page > -1" style="height: 50px;">
   <div *ngIf="!controls.auto" class="flex items-center space-x-4">
     <!-- Left Button -->
     <button 
       (click)="onMinusButtonClick()"
-      [disabled]="state.page === 0" 
+      [disabled]="page === 0" 
       class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
     >
       &larr;
     </button>
 
     <!-- Page Number -->
-    <span class="text-lg font-semibold">{{ state.page }}</span>
+    <span class="text-lg font-semibold">{{ page }}</span>
 
     <!-- Right Button -->
     <button 
       (click)="onPlusButtonClick()" 
-      [disabled]="state.page === structure.maxPageIndex" 
+      [disabled]="page === pageStructure.maxPageIndex" 
       class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
     >
       &rarr;
@@ -32,7 +32,7 @@
 
 <div id="content">
 
-  <div [ngSwitch]="state.page">
+  <div [ngSwitch]="page">
 
     <div *ngSwitchCase="-1">
       <div class="container2">
@@ -42,15 +42,15 @@
 
     <div *ngSwitchCase="0">
       <div style="display: flex; justify-content: center;margin-top: 0px;">
-        <img src="{{ mediaUrl }}{{ structure.imageUrl }}" height="600px" alt="audio image" />
+        <img src="{{ mediaUrl }}{{ pageStructure.imageUrl }}" height="600px" alt="audio image" />
       </div>
 
-      <div *ngIf="true || !controls.auto">
+      <div *ngIf="!controls.auto">
         <br>
 
       <div style="display: flex; justify-content: center;">
         <audio controls>
-          <source src="{{ mediaUrl }}{{ structure.audioUrl }}" type="audio/wav">
+          <source src="{{ mediaUrl }}{{ pageStructure.audioUrl }}" type="audio/wav">
           Your browser does not support the audio element.
         </audio>
       </div>
@@ -63,22 +63,22 @@
         <div class="content">
           <div style="display: flex; justify-content: center; margin-top: 0px; font-size: 36px;">
             <markdown ngPreserveWhitespaces
-              [data]="structure.markdown"
+              [data]="pageStructure.markdown"
               [disableSanitizer]="true">
             </markdown>
           </div>
 
           <div>
             <label
-              *ngFor="let option of structure.options; let i = index"
+              *ngFor="let option of pageStructure.options; let i = index"
               style="display: block; margin-bottom: 8px; font-size: 28px;"
             >
               <input
                 type="radio"
                 name="choices"
                 [value]="option"
-                [checked]="i === state.selectedOption"
-                (change)="onSelect(i)"
+                [checked]="i === state['0']"
+                (change)="onSelect(i,0)"
               />
               {{ option }}
             </label>
@@ -89,7 +89,7 @@
       <div *ngIf="!controls.auto; else autoControl">
       <div style="display: flex; justify-content: center;">
         <audio controls>
-          <source src="{{ mediaUrl }}{{ structure.audioUrl }}" type="audio/wav">
+          <source src="{{ mediaUrl }}{{ pageStructure.audioUrl }}" type="audio/wav">
           Your browser does not support the audio element.
         </audio>
       </div>
@@ -110,22 +110,22 @@
         <div class="content">
           <div style="display: flex; justify-content: center;font-size: 36px;">
             <markdown ngPreserveWhitespaces katex
-              [data]="structure.markdown"
+              [data]="pageStructure.markdown"
               [disableSanitizer]="true">
             </markdown>
           </div>
 
           <div>
             <label
-              *ngFor="let option of structure.options; let i = index"
+              *ngFor="let option of pageStructure.options; let i = index"
               style="display: block; margin-bottom: 8px; font-size: 28px;"
             >
               <input
                 type="radio"
                 name="choices"
                 [value]="option"
-                [checked]="i === state.selectedOption"
-                (change)="onSelect(i)"
+                [checked]="i === state['1']"
+                (change)="onSelect(i,1)"
               />
               {{ option }}
             </label>
@@ -136,13 +136,9 @@
       <div *ngIf="!controls.auto; else autoControl">
       <div style="display: flex; justify-content: center;">
         <audio controls>
-          <source src="{{ mediaUrl }}{{ structure.audioUrl }}" type="audio/wav">
+          <source src="{{ mediaUrl }}{{ pageStructure.audioUrl }}" type="audio/wav">
           Your browser does not support the audio element.
         </audio>
-      </div>
-      <br>
-      <div style="display: flex; justify-content: center;">
-        <button (click)="handler('submit')">Submit</button>
       </div>
       </div>
 
@@ -162,5 +158,15 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- Translucent Overlay -->
+<div *ngIf="isServiceUnavailable" class="overlay d-flex justify-content-center align-items-center">
+  <div class="card text-center p-4 shadow">
+    <div class="card-body">
+      <h4 class="card-title text-danger mb-3">Service Unavailable</h4>
+      <p class="card-text">The service is currently unavailable. Please try again later.</p>
+    </div>
   </div>
 </div>
