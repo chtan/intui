@@ -18,77 +18,43 @@ But only those with token are allowed to alter the state of the task.
 
 -->
 
-<div *ngIf="tid != null && +tid >= 8; else notEight">
+<div>
   <ul>
     <li *ngFor="let item of links">
       <a href="#" (click)="goToTokenPage($event)">{{ item }}</a>
     </li>
   </ul>
 </div>
-<ng-template #notEight>
-  <ul>
-    <li *ngFor="let item of links">
-      <a [routerLink]="['/task', item]" target="_blank">{{ item }}</a>
-    </li>
-  </ul>
-</ng-template>
 
 <br><br>
 
 <h3>Controls</h3>
 <div style="margin: 20px;" *ngIf="tid && ( +tid >= 10 )">
-  <!-- Show this content when tid == 5 or tid >= 10 -->
   <mat-slide-toggle 
     [checked]="isServiceUnavailable"
     (change)="onToggleChange($event)">
     Switch service off
   </mat-slide-toggle>
 </div>
-<div style="margin: 20px;" *ngIf="tid && ( +tid === 5 )">
-  <!-- Show this content when tid == 5 or tid >= 10 -->
-  <mat-slide-toggle 
-    [checked]="controls.auto"
-    (change)="onToggleChange($event)">
-    Autorun
-  </mat-slide-toggle>
-</div>
-<div style="margin: 20px;" *ngIf="!(tid && ( +tid === 5 || +tid >= 10 ))">
+<div style="margin: 20px;" *ngIf="!(tid && ( +tid >= 10 ))">
   <!-- Fallback content -->
   <p>Not allowed</p>
 </div>
-<!--
-<div>
-  <div [ngSwitch]="tid">
-    <div style="margin: 20px;" *ngSwitchCase="'5'">
-
-    </div>
-  </div>
-</div>
--->
 
 <br><br>
 
 <h3>Statistics</h3>
 <div>
-  <div *ngIf="['1'].includes(tid + '')">
-    <figure id="bar"></figure>
-  </div>
-
   <div *ngIf="environment.constants.workspaceStdVar1.includes(tid + '')">
     <!-- This is the chart visual. -->
     <app-histogram1 [data]="questionStats"></app-histogram1>
 
-    <!-- This is text showing json string of the global statistics. The pipe here display json nicely. -->
-    <!--
-    <pre>{{ globalStatistics | json }}</pre>
-    -->
-    
     <!-- Download the data. -->
     <button class="btn btn-primary" (click)="downloadData('statistics')">Download CSV</button>
   </div>
 </div>
 
-<div *ngIf="['1', '9'].includes(tid + '')">
+<div *ngIf="['9'].includes(tid + '')">
   <br><br>
 
   <h3>Web Socket</h3>
