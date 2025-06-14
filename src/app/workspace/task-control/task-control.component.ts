@@ -175,111 +175,65 @@ export class TaskControlComponent implements OnInit, OnDestroy {
     // Clear the contents
     this.links = [];
 
-    if (['9'].includes(this.tid + '')) {
-      if (localStorage.getItem('Coordinator') != null) {
+    if (localStorage.getItem('Coordinator') != null) {
+      const headers = new HttpHeaders({
+        'X-Request-Type': 'logged-in'
+      });
 
-        let params = new HttpParams()
-          .set('uid', String(localStorage.getItem('Coordinator')))
-          .set('tid', String(this.tid))
-        ;
+      let params = new HttpParams()
+        .set('uid', String(localStorage.getItem('Coordinator')))
+        .set('tid', String(this.tid))
+      ;
 
-        // Get task coordinator state for this userId (e.g. chtan, who is the task coordinator here)
-        this.http.get('http://' + environment.apiUrl + '/workspace/task', { params })
-          .subscribe(
-            (data: any) => {
-              if (data['status'] != 'ok') {
-                this.router.navigate(['/']);
-              }
+      this.http.get('http://' + environment.apiUrl + '/api/workspace/task', {
+        headers: headers,
+        params: params
+      }).subscribe(
+        (data: any) => {
+          if (data['status'] != 'ok') {
+            this.router.navigate(['/']);
+          }
 
-              var tmpstate = data['state'];
+          var tmpstate = data['state'];
 
-              for (const key in tmpstate) {
-                this.links.push(String(key));
-                this.state[key] = tmpstate[key]["n"];
-              }
-              this.recipientList = this.links;
+          for (const key in tmpstate) {
+            this.links.push(String(key));
+            this.state[key] = tmpstate[key]["n"];
+          }
+          this.recipientList = this.links;
+          this.questionStats = data["statistics"];
+          this.isServiceUnavailable = data['controls']['on'];
 
-              // Connect to websocket
-              this.wsService.connect(String(localStorage.getItem('Coordinator')));
+          // Draw statistics chart
 
-              // Subscribe to listen to and use incoming messages
-              this.wsSubscription = this.wsService.messages$.subscribe(
-                (message) => {
-                  if (message) {
-                    this.receivedMessage = message;
-                  }
+
+          // Connect to websocket
+          this.wsService.connect(
+            String(localStorage.getItem('Coordinator')), 
+            String(localStorage.getItem('access_token')),
+            this.tid + ''
+          );
+
+          // Subscribe to listen to and use incoming messages
+          this.wsSubscription = this.wsService.messages$.subscribe(
+            (message) => {
+              if (message) {
+                //console.log("Web Socket", message);
+                this.receivedMessage = message;
+
+                if (this.receivedMessage["message"] == "update global statistics") {
+                  this.questionStats = JSON.parse(this.receivedMessage["data"]);
                 }
-              );              
-            },
-            
-            (error: any) => {
-              console.error('Error fetching data:', error);
+              }
             }
           );
-      }
-    }  else if (this.tid != null && +this.tid >= 10) {
-      if (localStorage.getItem('Coordinator') != null) {
-        const headers = new HttpHeaders({
-          'X-Request-Type': 'logged-in'
-        });
-
-        let params = new HttpParams()
-          .set('uid', String(localStorage.getItem('Coordinator')))
-          .set('tid', String(this.tid))
-        ;
-
-        this.http.get('http://' + environment.apiUrl + '/api/workspace/task', {
-          headers: headers,
-          params: params
-        }).subscribe(
-            (data: any) => {
-              if (data['status'] != 'ok') {
-                this.router.navigate(['/']);
-              }
-
-              var tmpstate = data['state'];
-
-              for (const key in tmpstate) {
-                this.links.push(String(key));
-                this.state[key] = tmpstate[key]["n"];
-              }
-              this.recipientList = this.links;
-              this.questionStats = data["statistics"];
-              this.isServiceUnavailable = data['controls']['on'];
-
-              // Draw statistics chart
-
-
-              // Connect to websocket
-              this.wsService.connect(
-                String(localStorage.getItem('Coordinator')), 
-                String(localStorage.getItem('access_token')),
-                this.tid + ''
-              );
-
-              // Subscribe to listen to and use incoming messages
-              this.wsSubscription = this.wsService.messages$.subscribe(
-                (message) => {
-                  if (message) {
-                    //console.log("Web Socket", message);
-                    this.receivedMessage = message;
-
-                    if (this.receivedMessage["message"] == "update global statistics") {
-                      this.questionStats = JSON.parse(this.receivedMessage["data"]);
-                    }
-                  }
-                }
-              );
-              
-            },
-            
-            (error: any) => {
-              console.error('Error fetching data:', error);
-            }
-          );
-      }
-    } else {
-
+          
+        },
+        
+        (error: any) => {
+          console.error('Error fetching data:', error);
+        }
+      );
     }
   }
 
