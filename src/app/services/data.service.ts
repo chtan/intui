@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DataService {
-  private dataSubject = new BehaviorSubject<any[]>([]);
-  data$ = this.dataSubject.asObservable();
+  private _data = signal<any[]>([]);              // Writable signal
+  readonly data = this._data.asReadonly();        // Readonly signal
 
-  updateData(newData: any[]) {
-    //console.log("updated:", newData);
-    this.dataSubject.next(newData);
+  setData(newData: any[]) {
+    this._data.set(newData);                      // Replace entire array
+  }
+
+  updateData(updater: (prev: any[]) => any[]) {
+    this._data.update(updater);                   // Update based on current value
   }
 }

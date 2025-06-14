@@ -1,9 +1,7 @@
-import { Component, AfterViewInit, OnInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit, computed, effect, inject } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { RouterLink } from '@angular/router';
-
 import { DataService } from '../../services/data.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-taskspace',
@@ -11,21 +9,17 @@ import { Subscription } from 'rxjs';
     NgFor,
     RouterLink,
   ],
-  providers: [
-    //DataService, // Don't set this otherwise it will be a different copy!
-  ],
+  providers: [],
   templateUrl: './taskspace.component.html',
   styleUrl: './taskspace.component.scss'
 })
 export class TaskspaceComponent implements OnInit {
-  listOfTids: any[] = [];
-  subscription: Subscription;
+  private dataService = inject(DataService);
+  listOfTids = this.dataService.data;
 
-  constructor(
-    private dataService: DataService
-  ) {
-    this.subscription = this.dataService.data$.subscribe(data => {
-      this.listOfTids = data;
+  constructor() {
+    effect(() => {
+      console.log('Data changed:', this.listOfTids());
     });
   }
 
@@ -33,6 +27,5 @@ export class TaskspaceComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 }

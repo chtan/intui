@@ -1,5 +1,5 @@
 <ul>
-	<li *ngFor="let item of listOfTids">
+	<li *ngFor="let item of listOfTids()">
 		<a [routerLink]="['task', item]">{{ item }}</a>
 	</li>
 </ul>

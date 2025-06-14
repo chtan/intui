@@ -1,13 +1,10 @@
-import { Component, inject, AfterViewInit  } from '@angular/core';
+import { Component, inject, AfterViewInit, computed, Signal  } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-
-//import { CookieService } from 'ngx-cookie-service';
 import { environment } from "@environment/environment";
-
 import { DataService } from '../services/data.service';
 import { AuthService } from '../auth/auth.service';
 
@@ -19,19 +16,17 @@ import { AuthService } from '../auth/auth.service';
     MatToolbarModule,
     MatIconModule,
   ],
-  providers: [ 
-    //CookieService,
+  providers: [
     DataService,
   ],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.scss'
 })
 export class WorkspaceComponent implements AfterViewInit {
-  //cookieService = inject(CookieService);
-  dataService = inject(DataService);
+  private dataService = inject(DataService);
 
   uid: string | null = ''; // e.g. chtan
-  listOfTids: any[] = [];
+  listOfTids = this.dataService.data;
 
   constructor(
     private route: ActivatedRoute,
@@ -65,8 +60,7 @@ export class WorkspaceComponent implements AfterViewInit {
               this.router.navigate(['/']);
             }
 
-            this.listOfTids = data['tids'];
-            this.dataService.updateData(this.listOfTids);
+            this.dataService.setData(data['tids']);
           },
 
           (error: any) => {
