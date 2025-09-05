@@ -241,23 +241,35 @@ export class TaskControlComponent implements OnInit, OnDestroy {
   goToTokenPage(event: Event) {
     event.preventDefault();
     const taskToken = (event.target as HTMLElement).innerText;
+  
+    // This is used in the interceptor in auth.interceptor.ts.
     localStorage.setItem('anon_token', taskToken);
+    
+    // This is used in the task app (e.g. task-12.component.ts).
+    // The task app may be accessed from the main page,
+    // or by the coordinator, like here, as "Student View".
+    localStorage.setItem('task_token', taskToken);
 
-    const headers = new HttpHeaders({
-      'X-Request-Type': 'anonymous'
-    })
+    const headers = new HttpHeaders()
+      .set('X-Request-Type', 'anonymous')
+      //.set('X-Anonymous-Token', taskToken)
+      //.set('Cache-Control', 'no-cache')
+      //.set('Pragma', 'no-cache')
+      ;
 
     this.http.get<{ message: string }>(
-      'http://' + environment.apiUrl + '/api/anon-data/', 
+      'http://' + environment.apiUrl + '/api/anon-data', 
       { headers }
     ).subscribe({
         next: (response: any) => {
           const url = this.router.serializeUrl(
             this.router.createUrlTree(['/taskpad'])
           );
+
           window.open(url + '?taskid=' + response['taskid'], '_blank');
         },
-        error: () => {
+        error: (err) => {
+          //console.error('API request failed:', err); 
           this.router.navigate(['/']); // Go home if invalid
         }
     });

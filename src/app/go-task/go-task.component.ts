@@ -28,7 +28,8 @@ export class GoTaskComponent {
       url = '/taskpad';
     }
 
-    localStorage.setItem('anon_token', this.taskToken); // Save token
+    //localStorage.setItem('anon_token', this.taskToken); // Save token
+    localStorage.setItem('task_token', this.taskToken); // Save token
 
     // This is the user entering the taskpad with his token.
 

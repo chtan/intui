@@ -1,0 +1,315 @@
+<!-- Page Structure -->
+<div class="question-container">
+
+  <div class="question-area">
+
+    <!-- Question 1 -->
+    <div *ngIf="currentPage === '0'" class="card shadow-sm rounded-3 border-0">
+      <div class="card-body">
+        <h5 class="card-title text-primary">Question 1</h5>
+        <div style="line-height:1.6;">
+          <markdown katex ngPreserveWhitespaces>
+            In a primary school, 75% of the pupils play badminton, 70% play basketball and 65% play table tennis. 
+            Given that at least $x$% of the pupils play all three games, find the value of $x$.
+          </markdown>
+        </div>
+        <div class="d-flex flex-column gap-3 mt-3">
+          <label class="form-check d-flex align-items-center gap-3">
+            <input 
+              type="radio" 
+              class="form-check-input" 
+              name="viewAOptions" 
+              value="option1" 
+              [(ngModel)]="selectedOptionA" 
+              (change)="handleSelection('0', selectedOptionA)"
+              [disabled]="submitted"
+            >
+            <span>Option A1</span>
+          </label>
+          <label class="form-check d-flex align-items-center gap-3">
+            <input 
+              type="radio" 
+              class="form-check-input" 
+              name="viewAOptions" 
+              value="option2" 
+              [(ngModel)]="selectedOptionA" 
+              (change)="handleSelection('0', selectedOptionA)"
+              [disabled]="submitted"
+            >
+            <span>Option A2</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question 2 -->
+    <div *ngIf="currentPage === '1'" class="card shadow-sm rounded-3 border-0">
+      <div class="card-body">
+        <h5 class="card-title text-primary">Question 2</h5>
+        <div style="line-height:1.6;">
+          <markdown katex ngPreserveWhitespaces>
+            There are 50 children in a dance group. If there are 10 more boys than girls, how many
+            girls are there?
+          </markdown>
+        </div>
+        <div class="d-flex flex-column gap-3 mt-3">
+          <label class="form-check d-flex align-items-center gap-3">
+            <input 
+              type="radio" 
+              class="form-check-input" 
+              name="viewBOptions" 
+              value="option1" 
+              [(ngModel)]="selectedOptionB" 
+              (change)="handleSelection('1', selectedOptionB)"
+              [disabled]="submitted"
+            >
+            <span>Option B1</span>
+          </label>
+          <label class="form-check d-flex align-items-center gap-3">
+            <input 
+              type="radio" 
+              class="form-check-input" 
+              name="viewBOptions" 
+              value="option2" 
+              [(ngModel)]="selectedOptionB" 
+              (change)="handleSelection('1', selectedOptionB)"
+              [disabled]="submitted"
+            >
+            <span>Option B2</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Solution overlay (only covers question area) -->
+    <div class="solution-overlay" *ngIf="checkActive" @fadeInOut>
+
+      <div *ngIf="currentPage === '0'" class="card-container" #cardContainer>
+
+        <div class="card" [id]="'card1-page' + currentPage" #card1Ref>
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card5-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card2-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex src="assets/tasks/task-12/test1_1.md"></markdown>
+
+            <!-- Right: Media -->
+            <div class="media-container" *ngIf="mediaUrl">
+              <video autoplay muted playsinline>
+                <source src="{{ mediaUrl }}Scene1.webm" type="video/webm">
+                Your browser does not support the video tag.
+              </video>
+
+              <!-- Caption at the bottom of the card -->
+              <div class="media-caption" *ngIf="mediaUrl">
+                Overlapping circles represent students playing 1, 2 or more games. Students who do not play any of these games are represented by the area outside the circles in the box.
+              </div>
+            </div>
+          </div>
+
+          <!-- Replay button at bottom-right of card -->
+          <button class="replay-btn" aria-label="Replay" title="Replay" (click)="replayVideo($event)">⟳</button>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            1 / 5
+          </div>
+        </div>
+
+        <div class="card" [id]="'card2-page' + currentPage">
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card1-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card3-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex src="assets/tasks/task-12/test1_2.md"></markdown>
+
+            <!-- Right: Media -->
+            <div class="media-container" *ngIf="mediaUrl">
+              <video autoplay muted playsinline>
+                <source src="{{ mediaUrl }}Scene2.webm" type="video/webm">
+                Your browser does not support the video tag.
+              </video>
+
+              <!-- Caption at the bottom of the card -->
+              <div class="media-caption" *ngIf="mediaUrl">
+                Each set of students who play a game is separated from its complement which comprises the students who do not play that game.
+              </div>
+            </div>
+          </div>
+
+          <!-- Replay button at bottom-right of card -->
+          <button class="replay-btn" aria-label="Replay" title="Replay" (click)="replayVideo($event)">⟳</button>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            2 / 5
+          </div>
+        </div>
+
+        <div class="card" [id]="'card3-page' + currentPage">
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card2-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card4-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex src="assets/tasks/task-12/test1_3.md"></markdown>
+
+            <!-- Right: Media -->
+            <div class="media-container" *ngIf="mediaUrl">
+              <video autoplay muted playsinline>
+                <source src="{{ mediaUrl }}Scene3.webm" type="video/webm">
+                Your browser does not support the video tag.
+              </video>
+
+              <!-- Caption at the bottom of the card -->
+              <div class="media-caption" *ngIf="mediaUrl">
+                The groups of students listed account for all students, as shown by the complete covering of the rectangle.
+              </div>
+            </div>
+          </div>
+
+          <!-- Replay button at bottom-right of card -->
+          <button class="replay-btn" aria-label="Replay" title="Replay" (click)="replayVideo($event)">⟳</button>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            3 / 5
+          </div>
+        </div>
+
+        <div class="card" [id]="'card4-page' + currentPage">
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card3-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card5-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex src="assets/tasks/task-12/test1_4.md"></markdown>
+          </div>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            4 / 5
+          </div>
+        </div>
+
+        <div class="card" [id]="'card5-page' + currentPage">
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card4-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card1-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex src="assets/tasks/task-12/test1_5.md"></markdown>
+          </div>
+        </div>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            5 / 5
+          </div>
+      </div>
+    
+
+      <div *ngIf="currentPage === '1'" class="card-container" #cardContainer>
+
+        <div class="card" [id]="'card1-page' + currentPage" #card1Ref>
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card2-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card2-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex ngPreserveWhitespaces>testing 1</markdown>
+          </div>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            1 / 2
+          </div>
+        </div>
+
+        <div class="card" [id]="'card2-page' + currentPage">
+          <div class="card-nav">
+            <button title="Previous step" (click)="scrollTo('card1-page' + currentPage)">←</button>
+            <button title="Next step" (click)="scrollTo('card1-page' + currentPage)">→</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Left: Markdown/Text -->
+            <markdown katex ngPreserveWhitespaces>testing 2</markdown>
+          </div>
+
+          <!-- Progress indicator -->
+          <div class="card-progress">
+            2 / 2
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Interaction Space always on top -->
+<div class="interaction-space" [@slideUpDown]="interactionOpen ? 'open' : 'closed'">
+  <button class="interaction-toggle-btn" mat-icon-button (click)="toggleInteraction()">
+    <mat-icon>{{ interactionOpen ? 'expand_more' : 'expand_less' }}</mat-icon>
+  </button>
+
+  <div class="interaction-content">
+    <!-- Buttons remain centered -->
+    <div class="button-row">
+      <button mat-raised-button color="primary" (click)="prevQuestion()" 
+              [disabled]="currentPageIndex === 0">
+        ← Previous
+      </button>
+
+      <button mat-raised-button color="primary" (click)="nextQuestion()" 
+              [disabled]="currentPageIndex === questions.length - 1">
+        Next →
+      </button>
+
+      <button mat-raised-button color="accent" (click)="submit()" 
+              [disabled]="!allChoicesMade() || submitted">
+        Submit
+      </button>
+
+      <button class="interaction-toggle-label2"
+              mat-raised-button
+              color="warn"
+              (mousedown)="playClick()"
+              (click)="toggleCheck()"
+              [disabled]="!submitted"
+              [class.depressed]="checkActive">
+        Check Solution
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<!--
+<button (click)="sendMessage()">
+  Send message
+</button>
+-->
+
+<!--
+<markdown katex [data]="katexExpr" ngPreserveWhitespaces>
+</markdown>
+-->

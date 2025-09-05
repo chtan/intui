@@ -9,11 +9,9 @@ export class TaskTokenGuard implements CanActivate {
 
   canActivate(): boolean {
     const token = localStorage.getItem('task_token');
-    if (token) {
-      return true;
-    } else {
-      this.router.navigate(['/']);
-      return false;
-    }
+    if (token) return true;
+
+    this.router.navigate(['/']);
+    return false;
   }
 }

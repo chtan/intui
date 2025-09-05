@@ -10,10 +10,15 @@ import { GoTaskComponent } from './go-task/go-task.component';
 import { LoginComponent } from './login/login.component';
 //import { TempviewComponent } from './tempview/tempview.component';
 import { TaskpadComponent } from './taskpad/taskpad.component';
+import { SolutionpadComponent } from './solutionpad/solutionpad.component';
 
 export const routes: Routes = [
+	// Home page level
   	{ path: '', component: HomeComponent, pathMatch: 'full' },
+  	{ path: 'task', component: GoTaskComponent },
+  	{ path: 'login', component: LoginComponent },
 
+  	// Workspace
   	{ 
   		path: 'workspace',
   		component: WorkspaceComponent,
@@ -24,11 +29,11 @@ export const routes: Routes = [
 	  	canActivate: [ AuthGuard ],
   	},
 
-  	{ path: 'task', component: GoTaskComponent },
-
-  	{ path: 'login', component: LoginComponent },
+  	// Tasks (task extension has been used at Home, so I've named this taskpad.)
   	//{ path: 'tempview', component: TempviewComponent, canActivate: [TaskTokenGuard] },
   	{ path: 'taskpad', component: TaskpadComponent, canActivate: [TaskTokenGuard] },
+
+  	{ path: 'solutionpad', component: SolutionpadComponent },
 
   	{ path: '404', component: NotFoundComponent },
   	{ path: '**', redirectTo: '/404' },

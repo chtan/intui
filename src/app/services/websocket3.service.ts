@@ -19,7 +19,7 @@ ws.onmessage = (event) => {
 @Injectable({
   providedIn: 'root',
 })
-export class WebSocketService {
+export class WebSocket3Service {
   private socket$!: WebSocketSubject<any>;
   private messageSubject = new BehaviorSubject<any>(null);
   public messages$ = this.messageSubject.asObservable();
@@ -31,7 +31,7 @@ export class WebSocketService {
       return;
     }
 
-    const wsUrl = `ws://localhost:8000/ws/chat/${username}/`;
+    const wsUrl = `ws://localhost:8000/ws/chat2/${username}/`;
     this.socket$ = webSocket(wsUrl);
 
     this.socket$
