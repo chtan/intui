@@ -1,0 +1,1 @@
+$120 is shared among 3 persons A, B and C. If A receives $20 less than B, and B receives 3 times as much money as C, how much money does C receive?

@@ -13,6 +13,7 @@ import { environment } from "@environment/environment";
 // import { MarkdownModule } from 'ngx-markdown';
 import { MarkdownComponent } from 'ngx-markdown';
 import { RouterModule } from '@angular/router';
+import { KatexOptions } from 'ngx-markdown';
 
 @Component({
   selector: 'app-task-12',
@@ -75,6 +76,18 @@ export class Task12Component implements OnInit, OnDestroy, AfterViewInit {
   submitted = false;
   checkActive = false;
   clickSound = new Audio('assets/sounds/click.wav');
+
+  public options: KatexOptions = {
+    //displayMode: true,
+    throwOnError: false,
+    errorColor: '#cc0000',
+    delimiters: [
+      //{left: "$$", right: "$$", display: true},
+      //{left: "$", right: "$", display: false},
+      {left: "\\(", right: "\\)", display: false},
+      {left: "\\[", right: "\\]", display: true}
+    ],
+  };
 
   // ========================
   // Constructor
