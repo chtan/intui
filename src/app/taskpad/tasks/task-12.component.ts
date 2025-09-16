@@ -75,7 +75,13 @@ export class Task12Component implements OnInit, OnDestroy, AfterViewInit {
   selectedOptions: Record<string, string> = {};
   submitted = false;
   checkActive = false;
-  clickSound = new Audio('assets/sounds/click.wav');
+
+  // Uses HTML sound
+  //clickSound = new Audio('assets/sounds/click.wav');
+
+  // Use Web Audio
+  private audioContext!: AudioContext;
+  private clickBuffer!: AudioBuffer;
 
   public options: KatexOptions = {
     //displayMode: true,
@@ -105,7 +111,24 @@ export class Task12Component implements OnInit, OnDestroy, AfterViewInit {
   // ========================
   // Angular Lifecycle Hooks
   // ========================
-  ngOnInit() {
+  async ngOnInit() {
+    // This uses HTML sound. So slower.
+    // Force the browser to start loading immediately
+    //this.clickSound.load();
+    // Optional: Preload metadata for better performance
+    //this.clickSound.preload = 'auto';
+
+    // This uses Web Audio API - hence faster.
+    this.audioContext = new AudioContext();
+    try {
+      const response = await fetch('assets/sounds/click.wav');
+      const arrayBuffer = await response.arrayBuffer();
+      this.clickBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      console.error('Loading failed:', error);
+    }
+
+
     if (localStorage.getItem('task_token') != null) {
       this.taskToken = String(localStorage.getItem('task_token'));
 
@@ -173,9 +196,20 @@ export class Task12Component implements OnInit, OnDestroy, AfterViewInit {
   // User Interaction
   // ========================
   playClick() {
-    this.clickSound.currentTime = 0;
-    this.clickSound.play();
+    // HTML sound
+    //this.clickSound.currentTime = 0;
+    //this.clickSound.play();
+
+    // Web Audio API
+    if (!this.clickBuffer) return;
+    
+    const source = this.audioContext.createBufferSource();
+    source.buffer = this.clickBuffer;
+    source.connect(this.audioContext.destination);
+    source.start(0);
   }
+
+
 
   toggleCheck() {
     this.checkActive = !this.checkActive;
